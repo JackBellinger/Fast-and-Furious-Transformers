@@ -47,14 +47,20 @@ void pause_if_needed() {
 
 void FFT::graph(float a[][2], unsigned long size)
 {
-	double min = a[0][0]; 
-	double max = a[0][0];
+	double xmin = a[0][0];
+	double xmax = a[0][0];
+	double min = a[0][1]; 
+	double max = a[0][1];
 	for(int i = 0; i<size; i++)
 	{
 		if(min>a[i][1])
 			min=a[i][1]; 
 		if(max<a[i][1])
 			max=a[i][1]; 
+		if(xmin>a[i][0])
+			xmin = a[i][0]; 
+		if(xmax<a[i][0])
+			xmax= a[i][0];
 	}
 		for(int i = 0; i<size; i++)
 		{
@@ -74,7 +80,7 @@ void FFT::graph(float a[][2], unsigned long size)
 		std::cout<<"("<<x<<", "<<y<<")"<<std::endl;	
 		xy_pts.push_back(std::make_pair(x, y));
 	}
-	gp<<"set xrang [0:"<<size*.125<<"]\nset yrange ["<<min<<":"<<max<<"]\n"; 
+	gp<<"set xrange ["<<xmin<<":"<<xmax<<"]\nset yrange ["<<min<<":"<<max<<"]\n"; 
 	gp<<"plot '-' with lines title 'test'\n";
 	gp.send1d(xy_pts); 
 	pause_if_needed(); 
@@ -112,7 +118,7 @@ void FFT::four1(float data[], unsigned long nn, int isign)
 	double wtemp, wr, wpr, wpi, wi, theta; 
 	float tempr, tempi; 
 
-	n=nn <<1;//n = nn/2 
+	n=nn <<1;//n = nn*2 
 	j=1; 
 	//bit reverse 
 	for(i=0; i<n; i+=2)//i declared at top 
