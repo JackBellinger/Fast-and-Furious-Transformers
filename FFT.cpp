@@ -121,7 +121,7 @@ void FFT::four1(float data[], unsigned long nn, int isign)
 	n=nn <<1;//n = nn*2 
 	j=1; 
 	//bit reverse 
-	for(i=0; i<n; i+=2)//i declared at top 
+	for(i=1; i<n; i+=2)//i declared at top 
 	{
 		if(j>1)
 		{
@@ -129,7 +129,7 @@ void FFT::four1(float data[], unsigned long nn, int isign)
 			swap(data[j+1], data[i+1]); 
 
 		}
-		m = n>>1;
+		m = nn;
 		while(m>=2 && j > m)
 		{	
 			j-=m; 
