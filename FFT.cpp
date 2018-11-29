@@ -56,18 +56,25 @@ void FFT::graph(float a[][2], unsigned long size)
 		if(max<a[i][1])
 			max=a[i][1]; 
 	}
+		for(int i = 0; i<size; i++)
+		{
+//			std::cout<<a[i][0]<<std::endl;
+//			std::cout<<a[i][1]<<std::endl;
+		}
 
+	
 	Gnuplot gp;
-	int x; 
-	int y; 
+	float x; 
+	float y; 
 	std::vector<std::pair<double,double>> xy_pts; 
 	for(int i=0; i<size; i++)
 	{
 		x=a[i][0]; 
-		y=a[i][1];	
+		y=a[i][1];
+		std::cout<<"("<<x<<", "<<y<<")"<<std::endl;	
 		xy_pts.push_back(std::make_pair(x, y));
 	}
-	gp<<"set xrang [0:"<<size<<"]\nset yrange ["<<min<<":"<<max<<"]\n"; 
+	gp<<"set xrang [0:"<<size*.125<<"]\nset yrange ["<<min<<":"<<max<<"]\n"; 
 	gp<<"plot '-' with lines title 'test'\n";
 	gp.send1d(xy_pts); 
 	pause_if_needed(); 
