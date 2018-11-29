@@ -8,7 +8,8 @@ int main()
 	//first row y 
 	//second row x
         float real[size][2]; 
-	float imag[size][2]; 	
+	float imag[size][2];
+	float rVi[size][2];//xi is real y is img	
 	float a[size*2]; 
 	for(int i=0; i<size;  i++)
 	{
@@ -28,10 +29,10 @@ int main()
 	g.four1(a, size, 1); 
 	for(int i = 0; i<size; i++)
 	{
-		real[0][i] = a[i];
-	       imag[0][i]=a[i+1]; 	
+		rVi[i][0]=a[2*i+1]; 	
+		rVi[i][1]=a[2*i];
 //		std::cout<<a[i]<<std::endl;
 	}
-	g.graph(real, size);	
+	g.graph(rVi, size);	
 	return 0; 
 }
