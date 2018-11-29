@@ -1,7 +1,90 @@
 #include <math.h>
 #include "FFT.h"
-void FFT::swap(float& a, float& b)
+
+
+//Imports for graphing  
+
+#include "gnuplot-iostream/gnuplot-iostream.h"
+//
+#include<map>
+#include<limits>
+#include<cmath>
+#include<vector>
+#include<cstdio>
+//2d
+#include<boost/tuple/tuple.hpp>
+#include<boost/foreach.hpp>
+//3d
+#include <boost/array.hpp>
+#include <boost/range/adaptor/transformed.hpp>
+#include <boost/range/irange.hpp>
+#include <boost/bind.hpp>
+
+
+
+// http://stackoverflow.com/a/1658429
+#ifdef _WIN32
+        #include <windows.h>
+        inline void mysleep(unsigned millis) {
+                ::Sleep(millis);
+        }
+#else
+        #include <unistd.h>
+        inline void mysleep(unsigned millis) {
+                ::usleep(millis * 1000);
+        }
+#endif
+
+//Utility function for graphing
+void pause_if_needed() {
+#ifdef _WIN32
+        // For Windows, prompt for a keystroke before the Gnuplot object goes out of sco
+        // the gnuplot window doesn't get closed.
+        std::cout << "Press enter to exit." << std::endl;
+        std::cin.get();
+#endif
+}
+
+void FFT::graph(float a[][2], unsigned long size)
 {
+	double min = a[0][0]; 
+	double max = a[0][0];
+	for(int i = 0; i<size; i++)
+	{
+		if(min>a[i][1])
+			min=a[i][1]; 
+		if(max<a[i][1])
+			max=a[i][1]; 
+	}
+
+	Gnuplot gp;
+	int x; 
+	int y; 
+	std::vector<std::pair<double,double>> xy_pts; 
+	for(int i=0; i<size; i++)
+	{
+		x=a[i][0]; 
+		y=a[i][1];	
+		xy_pts.push_back(std::make_pair(x, y));
+	}
+	gp<<"set xrang [0:"<<size<<"]\nset yrange ["<<min<<":"<<max<<"]\n"; 
+	gp<<"plot '-' with lines title 'test'\n";
+	gp.send1d(xy_pts); 
+	pause_if_needed(); 
+
+
+}
+
+
+
+
+
+
+
+//End of graphing 
+
+void FFT::swap(float& a, float& b)
+{	
 	float temp = a; 
 	a=b; 
 	b=temp; 
