@@ -123,7 +123,7 @@ void FFT::four1(float data[], unsigned long nn, int isign)
 	//bit reverse 
 	for(i=1; i<n; i+=2)//i declared at top 
 	{
-		if(j>1)
+		if(j>i)
 		{
 			swap(data[j], data[i]); 
 			swap(data[j+1], data[i+1]); 

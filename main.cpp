@@ -27,6 +27,7 @@ int main()
 //	for(int i = 0; i<size; i++) 
 //		std::cout<<real[i][0]<<" ";
 	g.four1(a, size, 1); 
+	g.four1(a,size,-1);
 	for(int i = 0; i<size; i++)
 	{
 		real[i][0]=i*.125; 
