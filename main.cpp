@@ -4,7 +4,7 @@
 int main()
 {
 	FFT g; 
-	unsigned long size=256;
+	unsigned long size=64;
 	//first row y 
 	//second row x
         float real[size][2]; 
@@ -27,12 +27,12 @@ int main()
 //	for(int i = 0; i<size; i++) 
 //		std::cout<<real[i][0]<<" ";
 	g.four1(a, size, 1); 
-	for(int i = 0; i<size; i+=2)
+	for(int i = 0; i<size; i++)
 	{
 		real[i][0]=i*.125; 
 		imag[i][0]=i*.125; 
-		real[i][1]=a[i];  	
-		imag[i][1]=a[i+1];
+		real[i][1]=a[2*i];  	
+		imag[i][1]=a[2*i+1];
 		std::cout<<a[i]<<std::endl;
 	}
 	g.graph(real, size);	
