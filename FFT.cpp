@@ -77,11 +77,11 @@ void FFT::graph(float a[][2], unsigned long size)
 	{
 		x=a[i][0]; 
 		y=a[i][1];
-		std::cout<<"("<<x<<", "<<y<<")"<<std::endl;	
+//		std::cout<<"("<<x<<", "<<y<<")"<<std::endl;	
 		xy_pts.push_back(std::make_pair(x, y));
 	}
 	gp<<"set xrange ["<<xmin<<":"<<xmax<<"]\nset yrange ["<<min<<":"<<max<<"]\n"; 
-	gp<<"plot '-' with lines title 'test'\n";
+	gp<<"plot '-' with points title 'test'\n";
 	gp.send1d(xy_pts); 
 	pause_if_needed(); 
 

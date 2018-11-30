@@ -24,15 +24,18 @@ int main()
 		a[i+1]=imag[i][1]; 
 	}
         g.graph(real, size);
-	for(int i = 0; i<size; i++) 
-		std::cout<<real[i][0]<<" ";
+//	for(int i = 0; i<size; i++) 
+//		std::cout<<real[i][0]<<" ";
 	g.four1(a, size, 1); 
-	for(int i = 0; i<size; i++)
+	for(int i = 0; i<size; i+=2)
 	{
-		rVi[i][0]=a[2*i+1]; 	
-		rVi[i][1]=a[2*i];
-//		std::cout<<a[i]<<std::endl;
+		real[i][0]=i*.125; 
+		imag[i][0]=i*.125; 
+		real[i][1]=a[i];  	
+		imag[i][1]=a[i+1];
+		std::cout<<a[i]<<std::endl;
 	}
-	g.graph(rVi, size);	
+	g.graph(real, size);	
+	g.graph(imag, size);	
 	return 0; 
 }
