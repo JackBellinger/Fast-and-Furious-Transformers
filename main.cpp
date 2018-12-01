@@ -7,39 +7,39 @@ int main()
 	unsigned long size=64;
 	//first row y 
 	//second row x
-        float real[size][2]; 
-	float imag[size][2];
-	float rVi[size][2];//xi is real y is img	
+	
+	float timeStep = .125; 
+	float frequency = 10;
+        float f_real[size]; 
+	float f_imag[size];
+	float time[size]; 
+	float g_real[size];
+	float g_imag[size];
+	float omega[size]; 
+	
 	float a[size*2]; 
 	for(int i=0; i<size;  i++)
 	{
-		real[i][0]=i*.125; 
-		imag[i][0]=i*.125; 
-		real[i][1]=sin(i*.125);
-		imag[i][1]=0;
+		time[i]=i*timeStep; 
+		f_real[i]=sin(i*timeStep*frequency);
+		f_imag[i]=0;
 	}
 	int j = 0; 
 	for(int i = 0; i<size*2; i+=2)	
 	{
-		a[i]=real[j][1]; 
-		a[i+1]=imag[j][1];
+		a[i]=f_real[j]; 
+		a[i+1]=f_imag[j];
 	       j++;	
 	}
-        g.graph(real, size);
-//	for(int i = 0; i<size; i++) 
-//		std::cout<<real[i][0]<<" ";
+        g.graph(time, f_real, size);
 	g.four1(a, size, 1); 
-//	g.four1(a,size,-1);
 	j=0; 
 	for(int i = 0; i<size; i++)
 	{
-		real[i][0]=i*.125; 
-		imag[i][0]=i*.125; 
-		real[i][1]=a[2*i];  	
-		imag[i][1]=a[2*i+1];
-		std::cout<<a[i]<<std::endl;
+		g_real[i]=a[i*2];
+		g_imag[i]=a[2*i+1];
 	}
-	g.graph(real, size);	
-	g.graph(imag, size);	
+//	g.graph(real, size);	
+//	g.graph(imag, size);	
 	return 0; 
 }

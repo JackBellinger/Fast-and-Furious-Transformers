@@ -45,43 +45,37 @@ void pause_if_needed() {
 #endif
 }
 
-void FFT::graph(float a[][2], unsigned long size)
+void FFT::graph(float x[],float y[], unsigned long size)
 {
-	double xmin = a[0][0];
-	double xmax = a[0][0];
-	double min = a[0][1]; 
-	double max = a[0][1];
+	double xmin = x[0];
+	double xmax = x[0];
+	double ymin = y[0]; 
+	double ymax = y[0];
 	for(int i = 0; i<size; i++)
 	{
-		if(min>a[i][1])
-			min=a[i][1]; 
-		if(max<a[i][1])
-			max=a[i][1]; 
-		if(xmin>a[i][0])
-			xmin = a[i][0]; 
-		if(xmax<a[i][0])
-			xmax= a[i][0];
+		if(ymin>y[i])
+			ymin=y[i]; 
+		if(ymax<y[i])
+			ymax=y[i]; 
+		if(xmin>x[i])
+			xmin = x[i]; 
+		if(xmax<x[i])
+			xmax= x[i];
 	}
-		for(int i = 0; i<size; i++)
-		{
-//			std::cout<<a[i][0]<<std::endl;
-//			std::cout<<a[i][1]<<std::endl;
-		}
-
 	
 	Gnuplot gp;
-	float x; 
-	float y; 
+	float plotx; 
+	float ploty; 
 	std::vector<std::pair<double,double>> xy_pts; 
 	for(int i=0; i<size; i++)
 	{
-		x=a[i][0]; 
-		y=a[i][1];
+		plotx=x[i]; 
+		ploty=y[i];
 //		std::cout<<"("<<x<<", "<<y<<")"<<std::endl;	
-		xy_pts.push_back(std::make_pair(x, y));
+		xy_pts.push_back(std::make_pair(plotx, ploty));
 	}
 	
-	gp<<"set xrange ["<<xmin-xmin*.1<<":"<<xmax+xmax*.1<<"]\nset yrange ["<<min-min*.1<<":"<<max+max*.1<<"]\n"; 
+	gp<<"set xrange ["<<xmin-xmin*.1<<":"<<xmax+xmax*.1<<"]\nset yrange ["<<ymin-ymin*.1<<":"<<ymax+ymax*.1<<"]\n"; 
 	gp<<"plot '-' with lines title 'test'\n";
 	gp.send1d(xy_pts); 
 	pause_if_needed(); 
@@ -91,6 +85,37 @@ void FFT::graph(float a[][2], unsigned long size)
 
 
 //End of graphing 
+
+void FFT::calcOmega(float time[], unsigned long size, float omega[])
+{
+	//get delta from time array 
+	//delta = time step
+	float delta = time[1]; 
+	//time = sec
+	//freq = Hertz
+	
+	//frequency step
+	float freqStep= 1/(size*delta); 
+
+	int i = 0;
+	//loop over first half
+	for(i = 0; i < size/2; i++)
+	{
+		omega[i] = freqStep * i;
+	}
+	//loop over second half
+	for(i = size/2; i<size; i++)
+	{
+		omega[i] = freqStep * (i - size);
+
+	}
+
+
+}
+
+
+
+
 
 void FFT::swap(float& a, float& b)
 {	
@@ -172,3 +197,4 @@ void FFT::four1(float data0[], unsigned long nn, int isign)
 		
 	}
 }
+
