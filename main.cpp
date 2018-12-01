@@ -18,16 +18,19 @@ int main()
 		real[i][1]=sin(i*.125);
 		imag[i][1]=0;
 	}
+	int j = 0; 
 	for(int i = 0; i<size*2; i+=2)	
 	{
-		a[i]=real[i][1]; 
-		a[i+1]=imag[i][1]; 
+		a[i]=real[j][1]; 
+		a[i+1]=imag[j][1];
+	       j++;	
 	}
         g.graph(real, size);
 //	for(int i = 0; i<size; i++) 
 //		std::cout<<real[i][0]<<" ";
 	g.four1(a, size, 1); 
-	g.four1(a,size,-1);
+//	g.four1(a,size,-1);
+	j=0; 
 	for(int i = 0; i<size; i++)
 	{
 		real[i][0]=i*.125; 

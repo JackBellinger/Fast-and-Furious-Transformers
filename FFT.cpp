@@ -80,18 +80,14 @@ void FFT::graph(float a[][2], unsigned long size)
 //		std::cout<<"("<<x<<", "<<y<<")"<<std::endl;	
 		xy_pts.push_back(std::make_pair(x, y));
 	}
-	gp<<"set xrange ["<<xmin<<":"<<xmax<<"]\nset yrange ["<<min<<":"<<max<<"]\n"; 
-	gp<<"plot '-' with points title 'test'\n";
+	
+	gp<<"set xrange ["<<xmin-xmin*.1<<":"<<xmax+xmax*.1<<"]\nset yrange ["<<min-min*.1<<":"<<max+max*.1<<"]\n"; 
+	gp<<"plot '-' with lines title 'test'\n";
 	gp.send1d(xy_pts); 
 	pause_if_needed(); 
 
 
 }
-
-
-
-
-
 
 
 //End of graphing 
@@ -106,14 +102,22 @@ void FFT::swap(float& a, float& b)
 /*Replaces data [1...2*nn] by its discrete Fourier transform if isign is input as 1
  * or replaces by its inverse Fourier transform if isign is input -1 
  *
+ *ORIGINAL METHOD EXPECTED 1...2nn adjust for offset
+ *
  *data complex array of size nn, stored as real array size 2*nn
 
  This function assumes nn is an integer power of 2 
 
  //this function is in C copied from numerical recipes in C pg 507
  */
-void FFT::four1(float data[], unsigned long nn, int isign)
+void FFT::four1(float data0[], unsigned long nn, int isign)
 {
+	//compute pi
+	double pi = atan(1) * 4.0;
+	//data 0 has 0 based indexing
+	float *data;
+	data=data0-1; //pointer arithmetic
+
 	unsigned long n, mmax, m, j, istep, i; 
 	double wtemp, wr, wpr, wpi, wi, theta; 
 	float tempr, tempi; 
@@ -143,7 +147,7 @@ void FFT::four1(float data[], unsigned long nn, int isign)
 	while(n > mmax)
 	{
 		istep = mmax <<1; 
-		theta = isign * (6.28318530717959/mmax);
+		theta = isign * ((pi*2)/mmax);
 		wtemp = sin(0.5 * theta); 
 		wpr = -2.0 * wtemp * wtemp; 
 		wpi = sin(theta); 
