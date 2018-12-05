@@ -83,8 +83,19 @@ void FFT::graph(float x[],float y[], unsigned long size)
 
 }
 
+//End of graphing
 
-//End of graphing 
+
+//Takes array in frequency domain and multiplies it by cos zeroed at size / 4 and 3/4 size
+void FFT:: cosFilter(float data[], unsigned long size, float freqStep)
+{
+	float cos1[size/4];
+	float cos2[size/4];
+	for(int i = 0; i<size/4; i++)
+		cos1[i]=cos(i*freqStep * size/(2*3.14)); 
+
+
+}
 
 void FFT::calcOmega(float time[], unsigned long size, float omega[])
 {

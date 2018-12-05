@@ -7,7 +7,7 @@ int main(int argc, char** argv)
 {
 
 //sound proccessing stuff
-	Options options; 
+/*	Options options; 
 	options.define("c|channel=i:0", "channel to extract (offset from zero)");
 	options.process(argc, argv); 
 	int channel = options.getInteger("channel"); 
@@ -25,13 +25,13 @@ int main(int argc, char** argv)
 	}
 
 
-	FFT g; //used to accsess FFT functions 
+*/	FFT g; //used to accsess FFT functions 
 
 	unsigned long size=64;//number of samples
 	
 	float timeStep = .125; //the size of the time step 
 	float frequency = 10; //the frequency of the original function
-//        float f_real[size]; 
+        float f_real[size]; 
 	float f_imag[size]; //imaginary part of original funcion
 	float time[size];  //time array hold the "x"(t) component of original function
 	float g_real[size]; // g holds function after FFT 
@@ -44,7 +44,7 @@ int main(int argc, char** argv)
 	for(int i=0; i<size;  i++)
 	{
 		time[i]=i*timeStep; 
-//		f_real[i]=sin(i*timeStep*frequency);
+		f_real[i]=sin(i*timeStep*frequency);
 		f_imag[i]=0;
 	}
 
