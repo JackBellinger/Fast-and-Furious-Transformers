@@ -92,7 +92,9 @@ void FFT:: cosFilter(float data[], unsigned long size, float freqStep)
 	float cos1[size/4];
 	float cos2[size/4];
 	for(int i = 0; i<size/4; i++)
-		cos1[i]=cos(i*freqStep * size/(2*3.14)); 
+		cos1[i]=cos(i*freqStep * size/(2*3.14));
+       for (int i = 0; i<size/4; i++)
+		cos2[i]=cos(3.14/2 - i*freqStep *size/(2*3.14)); 	       
 
 
 }
