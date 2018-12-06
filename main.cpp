@@ -29,9 +29,21 @@ int main(int argc, char** argv)
 		puts (sf_strerror(NULL));
 		return 1; 
 	};
+	if(sfinfo.channels >MAX_CHANNELS)
+	{
+		printf ("Not able to process more than %d channels\n", MAX_CHANNELS);
+		return 1; 
+	};
+	if(!(outfile = sf_open(outfilename, SFM_WRITE, &sfinfo)))
+	{
+		printf("Not able to open output file %s. \n", outfilename); 
+		puts (sf_strerror(NULL)); 
+		return 1; 
+	};
 	while((readcount = sf_read_double (infile, data, BUFFER_LEN)))
 	{
 		proccessData(data,readcount, sfinfo.channels);	
+		sf_write_double(outfile, data, readcount);
 	}
 	
 //sound proccessing stuff
