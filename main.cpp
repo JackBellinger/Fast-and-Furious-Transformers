@@ -155,5 +155,5 @@ void proccessData(double *data, int size, int channels)
 
 //	g.graph(time, f_real, size);	
 //	g.graph(time, f_imag, size);	
-	return 0;
+	//return 0;
 }
