@@ -23,7 +23,12 @@ int main(int argc, char** argv)
 	const char *infilename = argv[1]; 
 	const char *outfilename = "output.wav"; 
 	memset(&sfinfo, 0, sizeof(sfinfo)); 
-	
+	if(!(infile = sf_open(infilename, SFM_READ, &sfinfo)))
+	{
+		printf("Not able to open input file %s. \n", infilename); 
+		puts (sf_strerror(NULL));
+		return 1; 
+	};
 	while((readcount = sf_read_double (infile, data, BUFFER_LEN)))
 	{
 		proccessData(data,readcount, sfinfo.channels);	
@@ -90,7 +95,7 @@ void proccessData(double *data, int size, int channels)
 	       j++;	
 	}
 	//graph f with respect to time
-        g.graph(time, f_real, size);
+       // g.graph(time, f_real, size);
 	//do the FFT
 	g.four1(a, size, 1); 
 
@@ -124,7 +129,7 @@ void proccessData(double *data, int size, int channels)
 		f_real[i]=a[i*2];
 		f_imag[i]=a[2*i+1];
 	}
-	g.graph(time, f_real, size);	
-	g.graph(time, f_imag, size);	
+//	g.graph(time, f_real, size);	
+//	g.graph(time, f_imag, size);	
 
 }
