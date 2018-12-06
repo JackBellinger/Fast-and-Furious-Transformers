@@ -1,8 +1,4 @@
 #include "FFT.h"
-//#include "soundfile-2.2/include/soundfile.h"
-#include "Options.h"
-#include "SoundHeader.h"
-#include "SoundFileRead.h"
 #include<stdlib.h>
 #include <iostream>
 #include <cstring>
@@ -23,8 +19,10 @@ int main(int argc, char** argv)
 	SNDFILE *infile, *outfile; 
 	SF_INFO sfinfo; 
 	int readcount; 
+	if(argc<2)
+		return 1; 
 	const char *infilename = argv[1]; 
-	const char *outfilename = "output.wav"; 
+	const char *outfilename = "output3.wav"; 
 	memset(&sfinfo, 0, sizeof(sfinfo)); 
 	if(!(infile = sf_open(infilename, SFM_READ, &sfinfo)))
 	{
@@ -43,11 +41,18 @@ int main(int argc, char** argv)
 		puts (sf_strerror(NULL)); 
 		return 1; 
 	};
-	while((readcount = sf_read_double (infile, data, BUFFER_LEN)))
+	for(int i = 0; i<3; i++)
+	{
+		if(readcount = sf_read_double(infile,data,BUFFER_LEN))
+			sf_write_double(outfile,data,readcount); 
+	}
+	if((readcount = sf_read_double (infile, data, BUFFER_LEN)))
 	{
 		proccessData(data,readcount, sfinfo.channels);	
 		sf_write_double(outfile, data, readcount);
 	}
+	sf_close(infile); 
+	sf_close(outfile); 
 	
 //sound proccessing stuff
 //	Options options; 
@@ -80,8 +85,9 @@ void proccessData(double *data, int size, int channels)
 
 //	unsigned long size=64;//number of samples
 	
-	float timeStep = .125; //the size of the time step 
-	float frequency = 30; //the frequency of the original function
+	float timeStep = 1; //the size of the time step 
+	//float timeStep = .125; //the size of the time step 
+	float frequency = 5; //the frequency of the original function
         float f_real[size]; 
 	for(int i = 0; i<size; i++)
 		f_real[i]=data[i]; 
@@ -93,8 +99,15 @@ void proccessData(double *data, int size, int channels)
 	float a[size*2];  //a holds f stored in interleaf format
 	float g_mag[size];//holds maginitues of comples numbers
 	//initalize f to sin function
-	for(int i=0; i<size;  i++)
+	for(int i=-size/2; i<size/2;  i++)
 	{
+		time[i+size/2]=i*timeStep; 
+		if(i >-100 && i <100)
+			f_real[i+size/2]=1;
+		else
+			f_real[i+size/2]=0;
+	//	f_real[i]=sin(i*timeStep*frequency);
+		f_imag[i+size/2]=0;
 		time[i]=i*timeStep; 
 		f_real[i]=sin(i*timeStep*frequency);
 //		f_real[i]=sin(i*timeStep*frequency)+rand()%5;
@@ -103,15 +116,18 @@ void proccessData(double *data, int size, int channels)
 
 	//store f in a using interleaf format
 	int j = 0; 
-	for(int i = 0; i<size*2; i+=2)	
+	for(int i = 0; i<size*2-1; i+=2)	
 	{
 		a[i]=f_real[j]; 
 		a[i+1]=f_imag[j];
 	       j++;	
 	}
+	std::cout<<a[2*size -1]<<std::endl;
 	//graph f with respect to time
        // g.graph(time, f_real, size);
 	//do the FFT
+	g.graph(time, f_real, size);
+//	g.graph(time, f_imag, size);
 	g.four1(a, size, 1); 
 
 	//copy a into g 
@@ -123,14 +139,16 @@ void proccessData(double *data, int size, int channels)
 		g_mag[i]=pow(g_real[i], 2) + pow(g_imag[i],2);
 	}				
 	g.calcOmega(time, size, omega);
-//	g.graph(omega, g_real, size);	
-//	g.graph(omega, g_imag, size);	
+	g.graph(omega, g_real, size);	
+	g.graph(omega, g_imag, size);	
+//	std::cout<<a[2*size -1]<<std::endl;
+//	std::cout<<std::endl;
 //	g.graph(omega, g_mag, size);
 //	pass stride 2 to proccess real and imag
 
-	g.cosFilter(g_real, size, omega[1]); 
+//	g.boxFilter(g_real, size, omega[1]); 
 //	g.graph(omega, g_real, size);	
-	g.cosFilter(g_imag, size, omega[1]); 
+//	g.boxFilter(g_imag, size, omega[1]); 
 
 //	g.graph(omega, g_mag, size);
 	for(int i = 0; i<2*size; i+=2)
@@ -138,11 +156,12 @@ void proccessData(double *data, int size, int channels)
 		a[i] = g_real[i]; 
 		a[i+1]=g_imag[i]; 	
 	}
-	g.four1(a, size, -1);
+//	g.four1(a, size, -1);
 	for(int i = 0; i<size; i++)
 	{
-		f_real[i]=a[i*2];
+		data[i]=a[i*2];
 		f_imag[i]=a[2*i+1];
+
 	}
 	float magnitudes[size];
 	for(int i = 0; i < size; i++)
@@ -155,5 +174,4 @@ void proccessData(double *data, int size, int channels)
 
 //	g.graph(time, f_real, size);	
 //	g.graph(time, f_imag, size);	
-	//return 0;
 }

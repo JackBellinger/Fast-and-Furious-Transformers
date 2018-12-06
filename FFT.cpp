@@ -77,7 +77,7 @@ void FFT::graph(float x[],float y[], unsigned long size)
  	
 	std::cout<<xmin<<std::endl;
 	gp<<"set xrange ["<<xmin - xmax*.1<<":"<<xmax+xmax*.1<<"]\nset yrange ["<<ymin-ymin*.1<<":"<<ymax+ymax*.1<<"]\n"; 
-	gp<<"plot '-' with lines title 'test'\n";
+	gp<<"plot '-' with points title 'test'\n";
 	gp.send1d(xy_pts); 
 	pause_if_needed(); 
 
@@ -85,6 +85,18 @@ void FFT::graph(float x[],float y[], unsigned long size)
 }
 
 //End of graphing
+
+
+void FFT:: boxFilter(float data[], unsigned long size, float freqStep)
+{
+	for(int i = 0; i<size/4; i++)
+		data[i]=0;
+       for(int i = 3*size/4; i<size; i++)	
+		data[i]=0;
+
+
+
+}
 
 //takes array of magnitudes of frequency
 //Takes array in frequency domain and multiplies it by cos zeroed at size / 4 and 3/4 size
@@ -107,10 +119,32 @@ void FFT:: cosFilter(float data[], unsigned long size, float freqStep)
 
 }
 
+void FFT::revFilter(float data[], unsigned long size, float freqStep)
+{
+//	for(int i = 0; i<size; i++)
+//		data[i]=0; 
+	
+	float cos1[size/8]; 
+	for(int i = 0; i<size/8; i++)
+	{
+		cos1[i]= cos(i*freqStep*(4*3.14/(size*freqStep)) - 3.14/2); 
+	}
+	for(int i = 0; i<(7*size/16); i++)
+	{
+		data[i]=0; 
+	}	
+	for(int i = 10*size/16; i< size; i++)
+		data[i]=0; 
+	for(int i = (7*size/16); i<10*size/16; i++)
+		data[i]*=cos1[i]; 
+	
+}
+
 void FFT::calcOmega(float time[], unsigned long size, float omega[])
 {
 	//get delta from time array 
 	//delta = time step
+	
 	float delta = time[1]; 
 	//time = sec
 	//freq = Hertz
@@ -163,7 +197,8 @@ void FFT::four1(float data0[], unsigned long nn, int isign)
 	//data 0 has 0 based indexing
 	float *data;
 	data=data0-1; //pointer arithmetic
-
+//	for(int i = 1; i<=2*nn; i++)
+//		std::cout<<*(data+i)<<"  ";
 	unsigned long n, mmax, m, j, istep, i; 
 	double wtemp, wr, wpr, wpi, wi, theta; 
 	float tempr, tempi; 
@@ -179,7 +214,7 @@ void FFT::four1(float data0[], unsigned long nn, int isign)
 			swap(data[j+1], data[i+1]); 
 
 		}
-		m = nn;
+		m = n >> 1;
 		while(m>=2 && j > m)
 		{	
 			j-=m; 
@@ -218,4 +253,3 @@ void FFT::four1(float data0[], unsigned long nn, int isign)
 		
 	}
 }
-
