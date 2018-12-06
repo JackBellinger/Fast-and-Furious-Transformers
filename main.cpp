@@ -2,13 +2,36 @@
 #include "soundfile-2.2/include/soundfile.h"
 #include<stdlib.h>
 #include <iostream>
+#include <cstring>
+#include<stdio.h>
+#include<string.h>
 #include<cmath>
+
+
+#include<sndfile.h>
+#define BUFFER_LEN 1024
+#define MAX_CHANNELS 6
+
+void proccessData(double *data, int count, int channels);
 int main(int argc, char** argv)
 {
 
+	static double data [BUFFER_LEN]; 
+	SNDFILE *infile, *outfile; 
+	SF_INFO sfinfo; 
+	int readcount; 
+	const char *infilename = argv[1]; 
+	const char *outfilename = "output.wav"; 
+	memset(&sfinfo, 0, sizeof(sfinfo)); 
+	
+	while((readcount = sf_read_double (infile, data, BUFFER_LEN)))
+	{
+		proccessData(data,readcount, sfinfo.channels);	
+	}
+	
 //sound proccessing stuff
-/*	Options options; 
-	options.define("c|channel=i:0", "channel to extract (offset from zero)");
+//	Options options; 
+/*	options.define("c|channel=i:0", "channel to extract (offset from zero)");
 	options.process(argc, argv); 
 	int channel = options.getInteger("channel"); 
 	const char* inputname = options.getArg(1); 
@@ -24,14 +47,25 @@ int main(int argc, char** argv)
 		insound.incrementSample(); 
 	}
 
+*/
 
-*/	FFT g; //used to accsess FFT functions 
 
-	unsigned long size=64;//number of samples
+return 0; 
+}
+
+void proccessData(double *data, int size, int channels)
+{
+
+
+	FFT g; //used to accsess FFT functions 
+
+//	unsigned long size=64;//number of samples
 	
 	float timeStep = .125; //the size of the time step 
 	float frequency = 30; //the frequency of the original function
         float f_real[size]; 
+	for(int i = 0; i<size; i++)
+		f_real[i]=data[i]; 
 	float f_imag[size]; //imaginary part of original funcion
 	float time[size];  //time array hold the "x"(t) component of original function
 	float g_real[size]; // g holds function after FFT 
@@ -43,7 +77,7 @@ int main(int argc, char** argv)
 	for(int i=0; i<size;  i++)
 	{
 		time[i]=i*timeStep; 
-		f_real[i]=sin(i*timeStep*frequency)+rand()%5;
+//		f_real[i]=sin(i*timeStep*frequency)+rand()%5;
 		f_imag[i]=0;
 	}
 
@@ -73,8 +107,11 @@ int main(int argc, char** argv)
 //	g.graph(omega, g_imag, size);	
 //	g.graph(omega, g_mag, size);
 //	pass stride 2 to proccess real and imag
+
 	g.cosFilter(g_real, size, omega[1]); 
+//	g.graph(omega, g_real, size);	
 	g.cosFilter(g_imag, size, omega[1]); 
+
 //	g.graph(omega, g_mag, size);
 	for(int i = 0; i<2*size; i+=2)
 	{
@@ -90,7 +127,4 @@ int main(int argc, char** argv)
 	g.graph(time, f_real, size);	
 	g.graph(time, f_imag, size);	
 
-
-
-	return 0; 
 }
