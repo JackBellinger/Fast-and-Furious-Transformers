@@ -74,8 +74,9 @@ void FFT::graph(float x[],float y[], unsigned long size)
 //		std::cout<<"("<<x<<", "<<y<<")"<<std::endl;	
 		xy_pts.push_back(std::make_pair(plotx, ploty));
 	}
-	
-	gp<<"set xrange ["<<xmin-xmin*.1<<":"<<xmax+xmax*.1<<"]\nset yrange ["<<ymin-ymin*.1<<":"<<ymax+ymax*.1<<"]\n"; 
+ 	
+	std::cout<<xmin<<std::endl;
+	gp<<"set xrange ["<<xmin - xmax*.1<<":"<<xmax+xmax*.1<<"]\nset yrange ["<<ymin-ymin*.1<<":"<<ymax+ymax*.1<<"]\n"; 
 	gp<<"plot '-' with lines title 'test'\n";
 	gp.send1d(xy_pts); 
 	pause_if_needed(); 
@@ -83,8 +84,28 @@ void FFT::graph(float x[],float y[], unsigned long size)
 
 }
 
+//End of graphing
 
-//End of graphing 
+//takes array of magnitudes of frequency
+//Takes array in frequency domain and multiplies it by cos zeroed at size / 4 and 3/4 size
+void FFT:: cosFilter(float data[], unsigned long size, float freqStep)
+{
+	float cos1[size/4];
+	float cos2[size/4];
+	for(int i = 0; i<size/4; i++)
+		cos1[i]=cos(i*freqStep * size/(2*3.14));
+       for (int i = 0; i<size/4; i++)
+		cos2[i]=cos(3.14/2 - i*freqStep *size/(2*3.14));
+	for(int i = 0; i<size/4; i++)
+	{
+		data[i]*=cos1[i]; 
+		data[i+3*size/4]*=cos2[i]; 
+	}	
+	for(int i = size/4; i<(3*size)/4; i++)
+		data[i]=0; 
+
+
+}
 
 void FFT::calcOmega(float time[], unsigned long size, float omega[])
 {
