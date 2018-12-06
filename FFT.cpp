@@ -77,7 +77,7 @@ void FFT::graph(float x[],float y[], unsigned long size)
  	
 	std::cout<<xmin<<std::endl;
 	gp<<"set xrange ["<<xmin - xmax*.1<<":"<<xmax+xmax*.1<<"]\nset yrange ["<<ymin-ymin*.1<<":"<<ymax+ymax*.1<<"]\n"; 
-	gp<<"plot '-' with points title 'test'\n";
+	gp<<"plot '-' with lines title 'test'\n";
 	gp.send1d(xy_pts); 
 	pause_if_needed(); 
 
@@ -214,7 +214,7 @@ void FFT::four1(float data0[], unsigned long nn, int isign)
 			swap(data[j+1], data[i+1]); 
 
 		}
-		m = n >> 1;
+		m = nn;
 		while(m>=2 && j > m)
 		{	
 			j-=m; 

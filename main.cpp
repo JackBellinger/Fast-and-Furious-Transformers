@@ -46,9 +46,10 @@ int main(int argc, char** argv)
 		if(readcount = sf_read_double(infile,data,BUFFER_LEN))
 			sf_write_double(outfile,data,readcount); 
 	}
+	//while
 	if((readcount = sf_read_double (infile, data, BUFFER_LEN)))
 	{
-		proccessData(data,readcount, sfinfo.channels);	
+		proccessData(data,BUFFER_LEN, sfinfo.channels);	
 		sf_write_double(outfile, data, readcount);
 	}
 	sf_close(infile); 
@@ -85,12 +86,12 @@ void proccessData(double *data, int size, int channels)
 
 //	unsigned long size=64;//number of samples
 	
-	float timeStep = 1; //the size of the time step 
+	float timeStep = .125; //the size of the time step 
 	//float timeStep = .125; //the size of the time step 
-	float frequency = 5; //the frequency of the original function
+	float frequency = 1; //the frequency of the original function
         float f_real[size]; 
-	for(int i = 0; i<size; i++)
-		f_real[i]=data[i]; 
+//	for(int i = 0; i<size; i++)
+//		f_real[i]=data[i]; 
 	float f_imag[size]; //imaginary part of original funcion
 	float time[size];  //time array hold the "x"(t) component of original function
 	float g_real[size]; // g holds function after FFT 
@@ -99,30 +100,27 @@ void proccessData(double *data, int size, int channels)
 	float a[size*2];  //a holds f stored in interleaf format
 	float g_mag[size];//holds maginitues of comples numbers
 	//initalize f to sin function
-	for(int i=-size/2; i<size/2;  i++)
+	for(int i=0; i<size;  i++)
 	{
-		time[i+size/2]=i*timeStep; 
+/*		time[i+size/2]=i*timeStep; 
 		if(i >-100 && i <100)
 			f_real[i+size/2]=1;
 		else
 			f_real[i+size/2]=0;
-	//	f_real[i]=sin(i*timeStep*frequency);
-		f_imag[i+size/2]=0;
-		time[i]=i*timeStep; 
-		f_real[i]=sin(i*timeStep*frequency);
-//		f_real[i]=sin(i*timeStep*frequency)+rand()%5;
+	*/	f_real[i]=sin(i*timeStep*frequency);
 		f_imag[i]=0;
+		time[i]=i*timeStep; 
+//		f_real[i]=sin(i*timeStep*frequency)+rand()%5;
 	}
 
 	//store f in a using interleaf format
 	int j = 0; 
-	for(int i = 0; i<size*2-1; i+=2)	
+	for(int i = 0; i<size*2; i+=2)	
 	{
 		a[i]=f_real[j]; 
 		a[i+1]=f_imag[j];
 	       j++;	
 	}
-	std::cout<<a[2*size -1]<<std::endl;
 	//graph f with respect to time
        // g.graph(time, f_real, size);
 	//do the FFT
@@ -168,9 +166,9 @@ void proccessData(double *data, int size, int channels)
 	{
 		magnitudes[i] = sqrt(pow(g_real[i], 2) + pow(g_imag[i], 2));
 	}
-	g.graph(time, g_real, size);	
-	g.graph(time, g_imag, size);	
-	g.graph(time, magnitudes, size);
+//	g.graph(time, g_real, size);	
+//	g.graph(time, g_imag, size);	
+	g.graph(omega, magnitudes, size);
 
 //	g.graph(time, f_real, size);	
 //	g.graph(time, f_imag, size);	
