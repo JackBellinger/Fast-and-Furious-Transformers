@@ -102,14 +102,14 @@ void proccessData(double *data, int size, int channels)
 	//initalize f to sin function
 	for(int i=0; i<size;  i++)
 	{
-/*		time[i+size/2]=i*timeStep; 
-		if(i >-100 && i <100)
-			f_real[i+size/2]=1;
+		time[i]=(i-size/2)*timeStep; 
+		if((i-size/2) >-100 && (i-size/2) <100)
+			f_real[i]=1;
 		else
-			f_real[i+size/2]=0;
-	*/	f_real[i]=sin(i*timeStep*frequency);
+			f_real[i]=0;
+	//	f_real[i]=sin(i*timeStep*frequency);
 		f_imag[i]=0;
-		time[i]=i*timeStep; 
+//		time[i]=i*timeStep; 
 //		f_real[i]=sin(i*timeStep*frequency)+rand()%5;
 	}
 
@@ -137,8 +137,8 @@ void proccessData(double *data, int size, int channels)
 		g_mag[i]=pow(g_real[i], 2) + pow(g_imag[i],2);
 	}				
 	g.calcOmega(time, size, omega);
-	g.graph(omega, g_real, size);	
-	g.graph(omega, g_imag, size);	
+//	g.graph(omega, g_real, size);	
+//	g.graph(omega, g_imag, size);	
 //	std::cout<<a[2*size -1]<<std::endl;
 //	std::cout<<std::endl;
 //	g.graph(omega, g_mag, size);
@@ -149,15 +149,17 @@ void proccessData(double *data, int size, int channels)
 //	g.boxFilter(g_imag, size, omega[1]); 
 
 //	g.graph(omega, g_mag, size);
+	j = 0; 
 	for(int i = 0; i<2*size; i+=2)
 	{
-		a[i] = g_real[i]; 
-		a[i+1]=g_imag[i]; 	
+		a[i] = g_real[j]; 
+		a[i+1]=g_imag[j];
+	j++;	
 	}
-//	g.four1(a, size, -1);
+	g.four1(a, size, -1);
 	for(int i = 0; i<size; i++)
 	{
-		data[i]=a[i*2];
+		f_real[i]=a[i*2];
 		f_imag[i]=a[2*i+1];
 
 	}
@@ -168,8 +170,8 @@ void proccessData(double *data, int size, int channels)
 	}
 //	g.graph(time, g_real, size);	
 //	g.graph(time, g_imag, size);	
-	g.graph(omega, magnitudes, size);
+//	g.graph(omega, magnitudes, size);
 
-//	g.graph(time, f_real, size);	
+	g.graph(time, f_real, size);	
 //	g.graph(time, f_imag, size);	
 }
