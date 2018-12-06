@@ -1,5 +1,8 @@
 #include "FFT.h"
-#include "soundfile-2.2/include/soundfile.h"
+//#include "soundfile-2.2/include/soundfile.h"
+#include "Options.h"
+#include "SoundHeader.h"
+#include "SoundFileRead.h"
 #include<stdlib.h>
 #include <iostream>
 #include<cmath>
@@ -17,7 +20,6 @@ int main(int argc, char** argv)
 	SoundHeader header = insound; 
 	header.setChannels(1); 
 	float f_real[insound.getSamples()];
-
 	for(int i = 0; i<insound.getSamples(); i++)
 	{
 		f_real[i] = insound.getCurrentSampleDouble(channel); 
@@ -31,7 +33,7 @@ int main(int argc, char** argv)
 	
 	float timeStep = .125; //the size of the time step 
 	float frequency = 10; //the frequency of the original function
-//        float f_real[size]; 
+//	float f_real[size]; 
 	float f_imag[size]; //imaginary part of original funcion
 	float time[size];  //time array hold the "x"(t) component of original function
 	float g_real[size]; // g holds function after FFT 
@@ -44,7 +46,7 @@ int main(int argc, char** argv)
 	for(int i=0; i<size;  i++)
 	{
 		time[i]=i*timeStep; 
-//		f_real[i]=sin(i*timeStep*frequency);
+		f_real[i]=sin(i*timeStep*frequency);
 		f_imag[i]=0;
 	}
 
@@ -68,7 +70,13 @@ int main(int argc, char** argv)
 		g_real[i]=a[i*2];
 		g_imag[i]=a[2*i+1];
 	}
-//	g.graph(real, size);	
-//	g.graph(imag, size);	
+	float magnitudes[size];
+	for(int i = 0; i < size; i++)
+	{
+		magnitudes[i] = sqrt(pow(g_real[i], 2) + pow(g_imag[i], 2));
+	}
+	g.graph(time, g_real, size);	
+	g.graph(time, g_imag, size);	
+	g.graph(time, magnitudes, size);
 	return 0; 
 }
