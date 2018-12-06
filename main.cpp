@@ -30,7 +30,7 @@ int main(int argc, char** argv)
 	unsigned long size=64;//number of samples
 	
 	float timeStep = .125; //the size of the time step 
-	float frequency = 10; //the frequency of the original function
+	float frequency = 30; //the frequency of the original function
         float f_real[size]; 
 	float f_imag[size]; //imaginary part of original funcion
 	float time[size];  //time array hold the "x"(t) component of original function
@@ -38,13 +38,12 @@ int main(int argc, char** argv)
 	float g_imag[size]; // imaginary part of g
 	float omega[size];  // omega is the frequency (step size of g)
 	float a[size*2];  //a holds f stored in interleaf format
-
-
+	float g_mag[size];//holds maginitues of comples numbers
 	//initalize f to sin function
 	for(int i=0; i<size;  i++)
 	{
 		time[i]=i*timeStep; 
-		f_real[i]=sin(i*timeStep*frequency);
+		f_real[i]=sin(i*timeStep*frequency)+rand()%5;
 		f_imag[i]=0;
 	}
 
@@ -67,8 +66,13 @@ int main(int argc, char** argv)
 	{
 		g_real[i]=a[i*2];
 		g_imag[i]=a[2*i+1];
+		g_mag[i]=pow(g_real[i], 2) - pow(g_imag[i],2);
 	}
-//	g.graph(real, size);	
-//	g.graph(imag, size);	
+	g.calcOmega(time, size, omega);
+	g.graph(omega, g_real, size);	
+	g.graph(omega, g_imag, size);	
+	g.graph(omega, g_mag, size);
+	g.cosFilter(g_mag, size, omega[1]); 
+	g.graph(omega, g_mag, size);
 	return 0; 
 }
