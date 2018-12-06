@@ -66,13 +66,31 @@ int main(int argc, char** argv)
 	{
 		g_real[i]=a[i*2];
 		g_imag[i]=a[2*i+1];
-		g_mag[i]=pow(g_real[i], 2) - pow(g_imag[i],2);
-	}
+		g_mag[i]=pow(g_real[i], 2) + pow(g_imag[i],2);
+	}				
 	g.calcOmega(time, size, omega);
-	g.graph(omega, g_real, size);	
-	g.graph(omega, g_imag, size);	
-	g.graph(omega, g_mag, size);
-	g.cosFilter(g_mag, size, omega[1]); 
-	g.graph(omega, g_mag, size);
+//	g.graph(omega, g_real, size);	
+//	g.graph(omega, g_imag, size);	
+//	g.graph(omega, g_mag, size);
+//	pass stride 2 to proccess real and imag
+	g.cosFilter(g_real, size, omega[1]); 
+	g.cosFilter(g_imag, size, omega[1]); 
+//	g.graph(omega, g_mag, size);
+	for(int i = 0; i<2*size; i+=2)
+	{
+		a[i] = g_real[i]; 
+		a[i+1]=g_imag[i]; 	
+	}
+	g.four1(a, size, -1);
+	for(int i = 0; i<size; i++)
+	{
+		f_real[i]=a[i*2];
+		f_imag[i]=a[2*i+1];
+	}
+	g.graph(time, f_real, size);	
+	g.graph(time, f_imag, size);	
+
+
+
 	return 0; 
 }
