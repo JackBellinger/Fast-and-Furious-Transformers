@@ -22,7 +22,7 @@ int main(int argc, char** argv)
 	if(argc<2)
 		return 1; 
 	const char *infilename = argv[1]; 
-	const char *outfilename = "output.wav"; 
+	const char *outfilename = "outputRev.wav"; 
 	memset(&sfinfo, 0, sizeof(sfinfo)); 
 	if(!(infile = sf_open(infilename, SFM_READ, &sfinfo)))
 	{
@@ -108,21 +108,21 @@ void proccessData(double *data, int size, int channels)
 	g.four1(a, size, 1); 
 
 	//copy a into g 
-/*	j=0; 
+	j=0; 
 	for(int i = 0; i<size; i++)
 	{
 		g_real[i]=a[i*2];
 		g_imag[i]=a[2*i+1];
 	}				
 	g.calcOmega(time, size, omega);
-	g.graph(omega, g_real, size);	
+//	g.graph(omega, g_real, size);	
 //	g.graph(omega, g_imag, size);	
 //	g.graph(omega, g_mag, size);
 //	pass stride 2 to proccess real and imag
 
-//	g.boxFilter(g_real, size, omega[1]); 
+	g.revFilter(g_real, size, omega[1]); 
 //	g.graph(omega, g_real, size);	
-//	g.boxFilter(g_imag, size, omega[1]); 
+	g.revFilter(g_imag, size, omega[1]); 
 
 //	g.graph(omega, g_mag, size);
 	j = 0; 
@@ -131,7 +131,7 @@ void proccessData(double *data, int size, int channels)
 		a[i] = g_real[j]; 
 		a[i+1]=g_imag[j];
 	j++;	
-	}*/
+	}
 	g.four1(a, size, -1);
 	for(int i = 0; i<size; i++)
 	{
