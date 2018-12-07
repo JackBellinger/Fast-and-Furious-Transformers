@@ -14,7 +14,8 @@
 #define MAX_CHANNELS 6
 
 
-void proccessData(double *data, float*magData, int count, int channels, FFT fft, filter_t filter, Plot& plot);
+void proccessData(double *data, float*magData, int count, int channels, FFT fft, filter_t filter, Plot& plot, bool isSin);
+
 int main(int argc, char** argv)
 {
 
@@ -38,8 +39,9 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	bool isSin = argv[1][0] == 's';
 	std::string graphType =  argv[2];
-	
+
 	filter_t filter = NONE;
 	std::string filterType = argv[3];
 	if(filterType == "REV")
@@ -50,14 +52,15 @@ int main(int argc, char** argv)
 		filter = COS;
 	else
 		filter = NONE;
-	std::string oFname = "output" + filterType + "-FFT.wav";
-	std::string filteredOutFname = "output" + filterType + ".wav";
-	const char *infilename = argv[1]; 
+	std::string iFname = argv[1];
+	std::string oFname = iFname + "output" + filterType + ".wav";
+	std::string filteredOutFname = iFname + "output" + filterType + ".wav";
+	const char *infilename = iFname.c_str(); 
 	const char *outfilename = oFname.c_str(); 
 	const char *filteroutfilename = filteredOutFname.c_str();
 
 	memset(&sfinfo, 0, sizeof(sfinfo)); 
-	
+
 	if(!(infile = sf_open(infilename, SFM_READ, &sfinfo)))
 	{
 		printf("Not able to open input file %s. \n", infilename); 
@@ -81,11 +84,11 @@ int main(int argc, char** argv)
 		puts (sf_strerror(NULL)); 
 		return 1; 
 	};
-	for(int i = 0; i<3; i++)
-	{
-		if(readcount = sf_read_double(infile,data,BUFFER_LEN))
-			sf_write_double(outfile,data,readcount); 
-	}
+//	for(int i = 0; i<3; i++)
+//	{
+//		if(readcount = sf_read_double(infile,data,BUFFER_LEN))
+//			sf_write_double(outfile,data,readcount); 
+//	}
 	//while
 	FFT fft;
 	Plot snippitPlot(BUFFER_LEN);
@@ -93,14 +96,15 @@ int main(int argc, char** argv)
 	std::vector<float*> outputData;
 	std::vector<float*> imagData;
 	float* filtData = new float[BUFFER_LEN];
-	
+
 	while((readcount = sf_read_double (infile, data, BUFFER_LEN)))
 	{
-		proccessData(data, filtData, BUFFER_LEN, sfinfo.channels, fft, REV, snippitPlot);
-		frequencyData.push_back(data);
-		std::cout << frequencyData.size() << std::endl;
+		proccessData(data, filtData, BUFFER_LEN, sfinfo.channels, fft, REV, snippitPlot, isSin);
+		//frequencyData.push_back(data);
+		
 		snippitPlot.gp.clear();
 		snippitPlot.graph(graphType);
+		
 		sf_write_double(outfile, data, readcount);
 		//sf_write_float(outfile, snippitPlot.realData, readcount);
 		//sf_write_float(filteroutfile, snippitPlot.filterData, readcount);
@@ -108,37 +112,37 @@ int main(int argc, char** argv)
 	}
 	sf_close(infile); 
 	sf_close(outfile); 
-/*
-	int size = frequencyData.size() * BUFFER_LEN;
-	std::cout << "size: " << size << std::endl;
-	float magnitudes [size];
-	float time[size];
-	int i = 0;	
-	for(int j = 0; j < frequencyData.size(); j++)
-		for(int f = 0; f < BUFFER_LEN && i < size; f++)
-		{
-			//std::cout << "magnitude " << i << std::endl;
-			//std::cout << "is " << frequencyData[j][f] << std::endl;
-			magnitudes[i]=frequencyData[j][f];
-			time[i] = i;
-			i++;
-		}
+	/*
+	   int size = frequencyData.size() * BUFFER_LEN;
+	   std::cout << "size: " << size << std::endl;
+	   float magnitudes [size];
+	   float time[size];
+	   int i = 0;	
+	   for(int j = 0; j < frequencyData.size(); j++)
+	   for(int f = 0; f < BUFFER_LEN && i < size; f++)
+	   {
+	//std::cout << "magnitude " << i << std::endl;
+	//std::cout << "is " << frequencyData[j][f] << std::endl;
+	magnitudes[i]=frequencyData[j][f];
+	time[i] = i;
+	i++;
+	}
 	float** graphData = {&time, &magnitudes, }
 	Plot gpFull(size);
 	gpFull.graph("mag");
-*/
+	*/
 
-return 0; 
+	return 0; 
 }
 
-void proccessData(double* data, float* filterData, int size, int channels, FFT fft, filter_t filter, Plot& plot)
+void proccessData(double* data, float* filterData, int size, int channels, FFT fft, filter_t filter, Plot& plot, bool isSin)
 {
 
 
-	
+
 	float timeStep = .125; //the size of the time step 
-//	float frequency = 1; //the frequency of the original function
-        float f_real[size]; 
+	float frequency = 10; //the frequency of the original function
+	float f_real[size]; 
 	for(int i = 0; i<size; i++)
 		f_real[i]=data[i]; 
 	float f_imag[size]; //imaginary part of original funcion
@@ -150,15 +154,17 @@ void proccessData(double* data, float* filterData, int size, int channels, FFT f
 	//initalize f to sin function
 	for(int i=0; i<size;  i++)
 	{
-/*		time[i]=(i-size/2)*timeStep; 
-		if((i-size/2) >-100 && (i-size/2) <100)
-			f_real[i]=1;
-		else
-			f_real[i]=0;
-	*///	f_real[i]=sin(i*timeStep*frequency);
+		/*		time[i]=(i-size/2)*timeStep; 
+				if((i-size/2) >-100 && (i-size/2) <100)
+				f_real[i]=1;
+				else
+				f_real[i]=0;
+				*///	
+		if(isSin)
+			f_real[i]=sin(i*timeStep*frequency);
 		f_imag[i]=0;
 		time[i]=i*timeStep; 
-//		f_real[i]=sin(i*timeStep*frequency)+rand()%5;
+		//		f_real[i]=sin(i*timeStep*frequency)+rand()%5;
 	}
 
 	//store f in a using interleaf format
@@ -167,14 +173,14 @@ void proccessData(double* data, float* filterData, int size, int channels, FFT f
 	{
 		a[i]=f_real[j]; 
 		a[i+1]=f_imag[j];
-	       j++;
-       	//	std::cout<<a[i]<<"  "<<a[i+1]<<std::endl;	       
+		j++;
+		//	std::cout<<a[i]<<"  "<<a[i+1]<<std::endl;	       
 	}
 	//graph f with respect to time
-       // g.graph(time, f_real, size);
+	// g.graph(time, f_real, size);
 	//do the FFT
-//	fft.graph(time, f_real, size);
-//	fft.graph(time, f_imag, size);
+	//	fft.graph(time, f_real, size);
+	//	fft.graph(time, f_imag, size);
 	fft.four1(a, size, 1, plot); 
 
 	//copy a into g 
@@ -185,43 +191,50 @@ void proccessData(double* data, float* filterData, int size, int channels, FFT f
 		g_imag[i]=a[2*i+1];
 	}				
 	fft.calcOmega(time, size, omega);
-//	fft.graph(omega, g_real, size);	
-//	fft.graph(omega, g_imag, size);	
-//	fft.graph(omega, g_mag, size);
-//	pass stride 2 to proccess real and imag
-if(filter)
-{
-	if(filter == REV)
+	//	fft.graph(omega, g_real, size);	
+	//	fft.graph(omega, g_imag, size);	
+	//	fft.graph(omega, g_mag, size);
+	//	pass stride 2 to proccess real and imag
+	if(filter)
 	{
-		fft.revFilter(g_real, size, omega[1]); 
-//		g.graph(omega, g_real, size);	
-		fft.revFilter(g_imag, size, omega[1]); 
+		if(filter == REV)
+		{
+			fft.revFilter(g_real, size, omega[1]); 
+			//		g.graph(omega, g_real, size);	
+			fft.revFilter(g_imag, size, omega[1]); 
+		}
+		if(filter == BOX)
+		{
+			fft.boxFilter(g_real, size, omega[1]);
+			fft.boxFilter(g_imag, size, omega[1]); 
+		}
+		if(filter == COS)
+		{
+			fft.cosFilter(g_real, size, omega[1]);
+			fft.cosFilter(g_imag, size, omega[1]); 
+		}
+		//	fft.graph(omega, g_mag, size);
+		j = 0; 
+		for(int i = 0; i<2*size; i+=2)
+		{
+			a[i] = g_real[j]; 
+			a[i+1]=g_imag[j];
+			j++;	
+		}
 	}
-	if(filter == BOX)
-	{
-		fft.boxFilter(g_real, size, omega[1]);
-		fft.boxFilter(g_imag, size, omega[1]); 
-	}
-	if(filter == COS)
-	{
-		fft.cosFilter(g_real, size, omega[1]);
-		fft.cosFilter(g_imag, size, omega[1]); 
-	}
-//	fft.graph(omega, g_mag, size);
-	j = 0; 
-	for(int i = 0; i<2*size; i+=2)
-	{
-		a[i] = g_real[j]; 
-		a[i+1]=g_imag[j];
-		j++;	
-	}
-}
 
 	fft.four1(a, size, -1, plot);
-	data = (double*)plot.realData; 
-//	g.graph(time, g_real, size);	
-//	g.graph(time, g_imag, size);	
 
-//	g.graph(time, f_real, size);	
-//	g.graph(time, f_imag, size);	
+	for(int i = 0; i<size; i++)
+	{
+		data[i]=a[i*2]/size;
+		f_imag[i]=a[2*i+1];
+	}
+	*(plot.imagData) = *f_imag;
+	//data = (double*)plot.realData; 
+	//	g.graph(time, g_real, size);	
+	//	g.graph(time, g_imag, size);	
+
+	//	g.graph(time, f_real, size);	
+	//	g.graph(time, f_imag, size);	
 }
