@@ -223,13 +223,14 @@ void proccessData(double* data, float* filterData, int size, int channels, FFT f
 		}
 	}
 
-	fft.four1(a, size, -1, plot);
 
 	for(int i = 0; i<size; i++)
 	{
 		data[i]=a[i*2]/size;
 		f_imag[i]=a[2*i+1];
 	}
+
+	fft.four1(a, size, -1, plot);
 	*(plot.imagData) = *f_imag;
 	//data = (double*)plot.realData; 
 	//	g.graph(time, g_real, size);	
