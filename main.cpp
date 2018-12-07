@@ -112,7 +112,7 @@ int main(int argc, char** argv)
 	}
 	sf_close(infile); 
 	sf_close(outfile); 
-	/*
+	
 	   int size = frequencyData.size() * BUFFER_LEN;
 	   std::cout << "size: " << size << std::endl;
 	   float magnitudes [size];
@@ -121,16 +121,16 @@ int main(int argc, char** argv)
 	   for(int j = 0; j < frequencyData.size(); j++)
 	   for(int f = 0; f < BUFFER_LEN && i < size; f++)
 	   {
-	//std::cout << "magnitude " << i << std::endl;
-	//std::cout << "is " << frequencyData[j][f] << std::endl;
-	magnitudes[i]=frequencyData[j][f];
-	time[i] = i;
-	i++;
-	}
-	float** graphData = {&time, &magnitudes, }
+			//std::cout << "magnitude " << i << std::endl;
+			//std::cout << "is " << frequencyData[j][f] << std::endl;
+			magnitudes[i]=frequencyData[j][f];
+			time[i] = i;
+			i++;
+	   }
 	Plot gpFull(size);
+	fft.four1(magnitudes, size, 1, gpFull);
 	gpFull.graph("mag");
-	*/
+	
 
 	return 0; 
 }
@@ -219,6 +219,7 @@ void proccessData(double* data, float* filterData, int size, int channels, FFT f
 		{
 			a[i] = g_real[j]; 
 			a[i+1]=g_imag[j];
+			data[j]=a[i]/size;
 			j++;	
 		}
 	}
@@ -226,12 +227,11 @@ void proccessData(double* data, float* filterData, int size, int channels, FFT f
 
 	for(int i = 0; i<size; i++)
 	{
-		data[i]=a[i*2]/size;
+		plot.imagData[i] = data[i];
 		f_imag[i]=a[2*i+1];
 	}
 
 	fft.four1(a, size, -1, plot);
-	*(plot.imagData) = *f_imag;
 	//data = (double*)plot.realData; 
 	//	g.graph(time, g_real, size);	
 	//	g.graph(time, g_imag, size);	
