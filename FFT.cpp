@@ -128,7 +128,8 @@ void FFT::revFilter(float data[], unsigned long size, float freqStep)
 	float cos1[size]; 
 	for(int i = 0; i<size; i++)
 	{
-		cos1[i]= cos(i*freqStep*(pi/(size*1.01*freqStep)) - pi/2); 
+		cos1[i]= cos(i*freqStep*(pi/(size*.8*freqStep)) - pi/2); 
+		data[i]*=cos1[i];
 	}
 	
 }
