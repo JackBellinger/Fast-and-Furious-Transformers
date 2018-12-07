@@ -5,24 +5,32 @@
 #include<stdio.h>
 #include<string.h>
 #include<cmath>
+#include<vector>
 
 
 #include<sndfile.h>
 #define BUFFER_LEN 1024
 #define MAX_CHANNELS 6
 
-void proccessData(double *data, int count, int channels);
+float* proccessData(double *data, int count, int channels);
 int main(int argc, char** argv)
 {
 
 	static double data [BUFFER_LEN]; 
+	static std::vector<double> frequencyData;
+
 	SNDFILE *infile, *outfile; 
 	SF_INFO sfinfo; 
 	int readcount; 
 	if(argc<2)
+	{
+		std::cout << "error no input file" << std::endl;
 		return 1; 
+	}
+
 	const char *infilename = argv[1]; 
 	const char *outfilename = "output.wav"; 
+	
 	memset(&sfinfo, 0, sizeof(sfinfo)); 
 	if(!(infile = sf_open(infilename, SFM_READ, &sfinfo)))
 	{
@@ -49,18 +57,24 @@ int main(int argc, char** argv)
 	//while
 	while((readcount = sf_read_double (infile, data, BUFFER_LEN)))
 	{
-		proccessData(data,BUFFER_LEN, sfinfo.channels);	
+		float* magData = proccessData(data,BUFFER_LEN, sfinfo.channels);
+		for(float magBit : magData)
+			frequencyData.push_back(magBit);
 		sf_write_double(outfile, data, readcount);
 	}
 	sf_close(infile); 
 	sf_close(outfile); 
-	
+	int size = frequencyData.size();
+	float magnitudes [size];
+	//for(double: )
+	FFT f;
+	f.graph(time, frequencyData, size);
 
 
 return 0; 
 }
 
-void proccessData(double *data, int size, int channels)
+float* proccessData(double *data, int size, int channels)
 {
 
 	FFT g; //used to accsess FFT functions 
@@ -140,14 +154,15 @@ void proccessData(double *data, int size, int channels)
 	//	std::cout<<a[2*i]/size<<"  "<<a[2*i +1]/size<<std::endl;; 
 
 	}
-	float magnitudes[size];
-	for(int i = 0; i < size; i++)
-	{
-		magnitudes[i] = sqrt(pow(g_real[i], 2) + pow(g_imag[i], 2));
+								
+	float* magnitudes = new float(size);//calculate the frequency spectrum graph
+  								/*    __________________________		*/
+	for(int i = 0; i < size; i++)/*  /		  2				  2			*/
+	{							/* \/ data[i]  +  imaginary[i]          */
+		magnitudes[i] =  sqrt( pow(data[i], 2) + pow(f_imag[i], 2) );
 	}
 //	g.graph(time, g_real, size);	
 //	g.graph(time, g_imag, size);	
-//	g.graph(omega, magnitudes, size);
 
 //	g.graph(time, f_real, size);	
 //	g.graph(time, f_imag, size);	
