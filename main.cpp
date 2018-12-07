@@ -12,13 +12,11 @@
 #define BUFFER_LEN 1024
 #define MAX_CHANNELS 6
 
-float* proccessData(double *data, int count, int channels);
+void proccessData(double *data, float*magData, int count, int channels);
 int main(int argc, char** argv)
 {
 
 	static double data [BUFFER_LEN]; 
-	static std::vector<double> frequencyData;
-
 	SNDFILE *infile, *outfile; 
 	SF_INFO sfinfo; 
 	int readcount; 
@@ -29,8 +27,8 @@ int main(int argc, char** argv)
 	}
 
 	const char *infilename = argv[1]; 
-	const char *outfilename = "output.wav"; 
-	
+	const char *outfilename = "outputRev.wav"; 
+	const char *outfilename2 = "output.wav"; 
 	memset(&sfinfo, 0, sizeof(sfinfo)); 
 	if(!(infile = sf_open(infilename, SFM_READ, &sfinfo)))
 	{
@@ -55,26 +53,40 @@ int main(int argc, char** argv)
 			sf_write_double(outfile,data,readcount); 
 	}
 	//while
+	std::vector<float*> frequencyData;
 	while((readcount = sf_read_double (infile, data, BUFFER_LEN)))
 	{
-		float* magData = proccessData(data,BUFFER_LEN, sfinfo.channels);
-		for(float magBit : magData)
-			frequencyData.push_back(magBit);
+		float* magData = new float[BUFFER_LEN];
+		proccessData(data, magData, BUFFER_LEN, sfinfo.channels);
+		frequencyData.push_back(magData);
+		std::cout << frequencyData.size() << std::endl;
 		sf_write_double(outfile, data, readcount);
 	}
 	sf_close(infile); 
 	sf_close(outfile); 
-	int size = frequencyData.size();
+
+	int size = frequencyData.size() * BUFFER_LEN;
+	std::cout << "size: " << size << std::endl;
 	float magnitudes [size];
-	//for(double: )
-	FFT f;
-	f.graph(time, frequencyData, size);
+	float time[size];
+	int i = 0;	
+	for(int j = 0; j < frequencyData.size(); j++)
+		for(int f = 0; f < BUFFER_LEN && i < size; f++)
+		{
+			//std::cout << "magnitude " << i << std::endl;
+			//std::cout << "is " << frequencyData[j][f] << std::endl;
+			magnitudes[i]=frequencyData[j][f];
+			time[i] = i;
+			i++;
+		}
+	FFT fft;
+	fft.graph(time, magnitudes, size);
 
 
 return 0; 
 }
 
-float* proccessData(double *data, int size, int channels)
+void proccessData(double *data, float* magData, int size, int channels)
 {
 
 	FFT g; //used to accsess FFT functions 
@@ -122,21 +134,21 @@ float* proccessData(double *data, int size, int channels)
 	g.four1(a, size, 1); 
 
 	//copy a into g 
-/*	j=0; 
+	j=0; 
 	for(int i = 0; i<size; i++)
 	{
 		g_real[i]=a[i*2];
 		g_imag[i]=a[2*i+1];
 	}				
 	g.calcOmega(time, size, omega);
-	g.graph(omega, g_real, size);	
+//	g.graph(omega, g_real, size);	
 //	g.graph(omega, g_imag, size);	
 //	g.graph(omega, g_mag, size);
 //	pass stride 2 to proccess real and imag
 
-//	g.boxFilter(g_real, size, omega[1]); 
+	g.revFilter(g_real, size, omega[1]); 
 //	g.graph(omega, g_real, size);	
-//	g.boxFilter(g_imag, size, omega[1]); 
+	g.revFilter(g_imag, size, omega[1]); 
 
 //	g.graph(omega, g_mag, size);
 	j = 0; 
@@ -145,7 +157,7 @@ float* proccessData(double *data, int size, int channels)
 		a[i] = g_real[j]; 
 		a[i+1]=g_imag[j];
 	j++;	
-	}*/
+	}
 	g.four1(a, size, -1);
 	for(int i = 0; i<size; i++)
 	{
@@ -155,11 +167,11 @@ float* proccessData(double *data, int size, int channels)
 
 	}
 								
-	float* magnitudes = new float(size);//calculate the frequency spectrum graph
+								//calculate the frequency spectrum graph
   								/*    __________________________		*/
 	for(int i = 0; i < size; i++)/*  /		  2				  2			*/
 	{							/* \/ data[i]  +  imaginary[i]          */
-		magnitudes[i] =  sqrt( pow(data[i], 2) + pow(f_imag[i], 2) );
+		magData[i] =  (float)sqrt( pow(data[i], 2) + pow(f_imag[i], 2) );
 	}
 //	g.graph(time, g_real, size);	
 //	g.graph(time, g_imag, size);	

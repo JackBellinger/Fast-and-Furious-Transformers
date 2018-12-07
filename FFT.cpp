@@ -1,25 +1,4 @@
-#include <math.h>
 #include "FFT.h"
-
-
-//Imports for graphing  
-
-#include "gnuplot-iostream/gnuplot-iostream.h"
-//
-#include<map>
-#include<limits>
-#include<cmath>
-#include<vector>
-#include<cstdio>
-//2d
-#include<boost/tuple/tuple.hpp>
-#include<boost/foreach.hpp>
-//3d
-#include <boost/array.hpp>
-#include <boost/range/adaptor/transformed.hpp>
-#include <boost/range/irange.hpp>
-#include <boost/bind.hpp>
-
 
 
 // http://stackoverflow.com/a/1658429
@@ -47,6 +26,7 @@ void pause_if_needed() {
 
 void FFT::graph(float x[],float y[], unsigned long size)
 {
+	gp.clear();
 	double xmin = x[0];
 	double xmax = x[0];
 	double ymin = y[0]; 
@@ -63,7 +43,6 @@ void FFT::graph(float x[],float y[], unsigned long size)
 			xmax= x[i];
 	}
 	
-	Gnuplot gp;
 	float plotx; 
 	float ploty; 
 	std::vector<std::pair<double,double>> xy_pts; 
@@ -102,19 +81,20 @@ void FFT:: boxFilter(float data[], unsigned long size, float freqStep)
 //Takes array in frequency domain and multiplies it by cos zeroed at size / 4 and 3/4 size
 void FFT:: cosFilter(float data[], unsigned long size, float freqStep)
 {
-	float cos1[size/4];
-	float cos2[size/4];
-	for(int i = 0; i<size/4; i++)
-		cos1[i]=cos(i*freqStep * size/(2*3.14));
-       for (int i = 0; i<size/4; i++)
-		cos2[i]=cos(3.14/2 - i*freqStep *size/(2*3.14));
-	for(int i = 0; i<size/4; i++)
+	double pi = atan(1) *4.0; 
+	float cos1[size/2];
+	float cos2[size/2];
+	for(int i = 0; i<size/2; i++)
+		cos1[i]=cos(i*freqStep * (pi/size));
+       for (int i = 0; i<size/2; i++)
+		cos2[i]=cos(pi/2 - i*freqStep *(pi/size));
+	for(int i = 0; i<size/2; i++)
 	{
 		data[i]*=cos1[i]; 
-		data[i+3*size/4]*=cos2[i]; 
+		data[i+size/2]*=cos2[i]; 
 	}	
-	for(int i = size/4; i<(3*size)/4; i++)
-		data[i]=0; 
+//	for(int i = size/4; i<(3*size)/4; i++)
+//		data[i]=0; 
 
 
 }
@@ -123,20 +103,13 @@ void FFT::revFilter(float data[], unsigned long size, float freqStep)
 {
 //	for(int i = 0; i<size; i++)
 //		data[i]=0; 
-	
-	float cos1[size/8]; 
-	for(int i = 0; i<size/8; i++)
+	float pi = atan(1)*4.0; 
+	float cos1[size]; 
+	for(int i = 0; i<size; i++)
 	{
-		cos1[i]= cos(i*freqStep*(4*3.14/(size*freqStep)) - 3.14/2); 
+		cos1[i]= cos(i*freqStep*(pi/(size*.8*freqStep)) - pi/2); 
+		data[i]*=cos1[i];
 	}
-	for(int i = 0; i<(7*size/16); i++)
-	{
-		data[i]=0; 
-	}	
-	for(int i = 10*size/16; i< size; i++)
-		data[i]=0; 
-	for(int i = (7*size/16); i<10*size/16; i++)
-		data[i]*=cos1[i]; 
 	
 }
 
@@ -167,9 +140,6 @@ void FFT::calcOmega(float time[], unsigned long size, float omega[])
 
 
 }
-
-
-
 
 
 void FFT::swap(float& a, float& b)
