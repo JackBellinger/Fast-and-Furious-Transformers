@@ -1,5 +1,6 @@
 #include "FFT.h"
 
+#include "gnuplot-iostream/gnuplot-iostream.h"
 
 // http://stackoverflow.com/a/1658429
 #ifdef _WIN32
@@ -23,10 +24,69 @@ void pause_if_needed() {
         std::cin.get();
 #endif
 }
-
-void FFT::graph(float x[],float y[], unsigned long size)
+Plot::Plot(unsigned long s)
 {
-	gp.clear();
+	size = s;
+	realData = new float[size];
+	imagData = new float[size];
+	magData = new float[size];
+	filterData = new float[size];
+
+	timeX = new float[size];
+	for(unsigned long i = 0; i < size; i++)
+		timeX[i] = i;
+
+}
+Plot::Plot(const Plot& p)
+{
+	size = p.size;
+	timeX = new float[size];
+	realData = new float[size];
+	magData = new float[size];
+	filterData = new float[size];
+
+	for(unsigned long s = 0; s < size; s++)
+	{
+		timeX[s] = p.timeX[s];
+		realData[s] = p.realData[s];
+		magData[s] = p.magData[s];
+		filterData[s] = p.filterData[s];
+	}
+}
+
+Plot::~Plot()
+{
+	delete[] timeX;
+	delete[] realData;
+	delete[] magData;
+	delete[] filterData;
+}
+
+void Plot::graph(std::string type)
+{//why are these floats?
+	float* x;
+	float* y;
+	if(type == "real")
+	{
+		x = timeX;
+		y = realData;
+	}
+	if(type == "imag")
+	{
+		x = timeX;
+		y = imagData;
+	}
+	if(type == "mag")
+	{
+		x = timeX;
+		y = magData;
+	}
+	if(type == "filter")
+	{
+		x = timeX;
+		y = filterData;
+	}
+
 	double xmin = x[0];
 	double xmax = x[0];
 	double ymin = y[0]; 
@@ -43,8 +103,8 @@ void FFT::graph(float x[],float y[], unsigned long size)
 			xmax= x[i];
 	}
 	
-	float plotx; 
-	float ploty; 
+	double plotx; 
+	double ploty; 
 	std::vector<std::pair<double,double>> xy_pts; 
 	for(int i=0; i<size; i++)
 	{
@@ -63,6 +123,12 @@ void FFT::graph(float x[],float y[], unsigned long size)
 
 }
 
+void Plot::setData(float** t_r_idatas)
+{
+	realData = t_r_idatas[0];	
+	imagData = t_r_idatas[0];
+	magData = t_r_idatas[0];	
+}
 //End of graphing
 
 
@@ -160,8 +226,12 @@ void FFT::swap(float& a, float& b)
 
  //this function is in C copied from numerical recipes in C pg 507
  */
-void FFT::four1(float data0[], unsigned long nn, int isign)
+void FFT::four1(float data0[], unsigned long nn, int isign, Plot& p)
 {
+	//save prefiltered data
+	for(int i = 0; i < nn; i+=2)
+		p.filterData[i] = data0[i];
+
 	//compute pi
 	double pi = atan(1) * 4.0;
 	//data 0 has 0 based indexing
@@ -221,5 +291,19 @@ void FFT::four1(float data0[], unsigned long nn, int isign)
 		}
 		mmax = istep; 
 		
+	}
+
+	for(int i = 0; i<nn; i++)
+	{
+		p.realData[i]=data[i*2]/nn;
+		p.imagData[i]=data[2*i+1];
+	//	std::cout<<data[2*i]/nn<<"  "<<data[2*i +1]/nn<<std::endl;; 
+
+	}
+								//calculate the frequency spectrum graph
+  								/*    __________________________		*/
+	for(int i = 0; i < p.size; i++)/*  /		  2				  2			*/
+	{							/* \/ data[i]  +  imaginary[i]          */
+		p.magData[i] =  (float)sqrt( pow(p.realData[i], 2) + pow(p.imagData[i], 2) );
 	}
 }

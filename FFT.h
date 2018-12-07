@@ -16,15 +16,33 @@
 #include <boost/range/irange.hpp>
 #include <boost/bind.hpp>
 
+enum filter_t {NONE= 0, REV = 1, BOX = 2, COS = 3};
+struct Plot
+{
+	public:
+	Plot(unsigned long size);
+	Plot(const Plot&);
+	~Plot();
+	void setData();
+	
+	unsigned long size;
+	float* timeX;
+	float* realData;
+	float* imagData;
+	float* magData;
+	float* filterData;
+	Gnuplot gp;
+
+	void graph(std::string);
+	void setData(float**);//must have 3 float arrays with size = this.size
+};
 class FFT
 {
 	public:
 	void calcOmega(float time[], unsigned long size, float omega[]); 
 	void swap(float& , float&); 
-	void four1(float*, unsigned long, int);
-	void graph(float[],float[], unsigned long);
+	void four1(float*, unsigned long, int, Plot&);
 	void cosFilter(float[], unsigned long size, float freqStep);
 	void revFilter(float[], unsigned long size, float freqStep);
 	void boxFilter(float[], unsigned long size, float freqStep);
-	Gnuplot gp;
 };
