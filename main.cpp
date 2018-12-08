@@ -84,7 +84,7 @@ int main(int argc, char** argv)
 
 	//need this loop to maintain formatting at beginning 
 	//of a wav file
-	for(int i = 0; i<2; i++)
+	for(int i = 0; i<3; i++)
 	{
 		if(readcount = sf_read_double(infile,data,BUFFER_LEN))
 			sf_write_double(outfile,data,readcount); 

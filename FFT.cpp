@@ -146,7 +146,7 @@ void FFT:: boxFilter(float data[], unsigned long size, float freqStep)
 
 //takes array of magnitudes of frequency
 //Takes array in frequency domain and multiplies it by cos zeroed at size / 4 and 3/4 size
-void FFT:: revFilter(float data[], unsigned long size, float freqStep)
+void FFT:: cosFilter(float data[], unsigned long size, float freqStep)
 {
 	double pi = atan(1) *4.0; 
 	float cos1[size/2];
@@ -167,7 +167,7 @@ void FFT:: revFilter(float data[], unsigned long size, float freqStep)
 
 }
 
-void FFT::cosFilter(float data[], unsigned long size, float freqStep)
+void FFT::revFilter(float data[], unsigned long size, float freqStep)
 {
 //	for(int i = 0; i<size; i++)
 //		data[i]=0; 
