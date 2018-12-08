@@ -10,7 +10,7 @@
 #include "gnuplot-iostream/gnuplot-iostream.h"
 
 #include<sndfile.h>
-#define BUFFER_LEN 1024
+#define BUFFER_LEN 512
 #define MAX_CHANNELS 6
 
 
@@ -19,7 +19,10 @@ void proccessData(double *data, float*magData, int count, int channels, FFT fft,
 int main(int argc, char** argv)
 {
 
-	static double data [BUFFER_LEN]; 
+	//two data arrays used for windowing
+	static double data [2*BUFFER_LEN]; 
+	static double data1 [BUFFER_LEN]; 
+	static double data2 [BUFFER_LEN]; 
 	SNDFILE *infile, *outfile, *filteroutfile; 
 	SF_INFO sfinfo; 
 	int readcount; 
@@ -72,47 +75,72 @@ int main(int argc, char** argv)
 		printf ("Not able to process more than %d channels\n", MAX_CHANNELS);
 		return 1; 
 	};
-	if(!(outfile = sf_open(outfilename, SFM_WRITE, &sfinfo)))
-	{
-		printf("Not able to open output file %s. \n", outfilename); 
-		puts (sf_strerror(NULL)); 
-		return 1; 
-	};
 	if(!(outfile = sf_open(filteroutfilename, SFM_WRITE, &sfinfo)))
 	{
 		printf("Not able to open output file %s. \n", outfilename); 
 		puts (sf_strerror(NULL)); 
 		return 1; 
 	};
-//	for(int i = 0; i<3; i++)
-//	{
-//		if(readcount = sf_read_double(infile,data,BUFFER_LEN))
-//			sf_write_double(outfile,data,readcount); 
-//	}
+
+	//need this loop to maintain formatting at beginning 
+	//of a wav file
+	for(int i = 0; i<2; i++)
+	{
+		if(readcount = sf_read_double(infile,data,BUFFER_LEN))
+			sf_write_double(outfile,data,readcount); 
+	}
 	//while
 	FFT fft;
-	Plot snippitPlot(BUFFER_LEN);
+	Plot snippitPlot(2*BUFFER_LEN);
 	std::vector<double*> frequencyData;
 	std::vector<float*> outputData;
 	std::vector<float*> imagData;
-	float* filtData = new float[BUFFER_LEN];
-
-	while((readcount = sf_read_double (infile, data, BUFFER_LEN)))
+	float* filtData = new float[2*BUFFER_LEN];
+	sf_read_double(infile, data1, BUFFER_LEN); 
+	while((readcount = sf_read_double (infile, data2, BUFFER_LEN)))
 	{
-		proccessData(data, filtData, BUFFER_LEN, sfinfo.channels, fft, REV, snippitPlot, isSin);
+		int dataIndex = 0; 
+		//WINDOWING and copy over
+		//ramp function = 2*i/length
+		//ramp down =  2*(length-i)/length
+		for(int i=0; i<BUFFER_LEN/2; i++)
+		{
+			data[dataIndex]=data1[i] *2*i/BUFFER_LEN; 
+			dataIndex++; 
+		}
+		for(int i = BUFFER_LEN/2; i<BUFFER_LEN; i++)
+		{
+			data[dataIndex]=data1[i]; 
+			dataIndex++; 
+		}
+		for(int i = 0; i<BUFFER_LEN/2; i++)
+		{
+			data[dataIndex]=data2[i]; 
+			dataIndex++; 
+		}	
+		for(int i = BUFFER_LEN/2; i<BUFFER_LEN; i++)
+		{
+			data[dataIndex]=data2[i] *2*(BUFFER_LEN - i)/BUFFER_LEN; 
+			dataIndex++; 
+		}
+		proccessData(data, filtData, 2*BUFFER_LEN, sfinfo.channels, fft, REV, snippitPlot, isSin);
 		//frequencyData.push_back(data);
-		
+			
 		snippitPlot.gp.clear();
 		snippitPlot.graph(graphType);
-		
-		sf_write_double(outfile, data, readcount);
+		//write out the un windowed part of the file	
+		sf_write_double(outfile, &data[BUFFER_LEN/2], BUFFER_LEN);
 		//sf_write_float(outfile, snippitPlot.realData, readcount);
 		//sf_write_float(filteroutfile, snippitPlot.filterData, readcount);
+		//
+		//copy data 2 into data 1
+		for(int i = 0; i<BUFFER_LEN; i++)
+			data1[i]=data2[i]; 
 
 	}
 	sf_close(infile); 
 	sf_close(outfile); 
-	
+/*	
 	   int size = frequencyData.size() * BUFFER_LEN;
 	   std::cout << "size: " << size << std::endl;
 	   float magnitudes [size];
@@ -130,15 +158,13 @@ int main(int argc, char** argv)
 	Plot gpFull(size);
 	fft.four1(magnitudes, size, 1, gpFull);
 	gpFull.graph("mag");
-	
-
+*/
+	delete []filtData;
 	return 0; 
 }
 
 void proccessData(double* data, float* filterData, int size, int channels, FFT fft, filter_t filter, Plot& plot, bool isSin)
 {
-
-
 
 	float timeStep = .125; //the size of the time step 
 	float frequency = 10; //the frequency of the original function
@@ -232,6 +258,12 @@ void proccessData(double* data, float* filterData, int size, int channels, FFT f
 	}
 
 	fft.four1(a, size, -1, plot);
+	j = 0; 
+	for(int i = 0; i<size*2; i+=2)
+	{
+		data[j]=a[i]/size; 
+		j++;
+	}
 	//data = (double*)plot.realData; 
 	//	g.graph(time, g_real, size);	
 	//	g.graph(time, g_imag, size);	

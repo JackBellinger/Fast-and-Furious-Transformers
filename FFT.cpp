@@ -64,6 +64,8 @@ Plot::~Plot()
 
 void Plot::graph(std::string type)
 {//why are these floats?
+	if(type !="none")
+	{
 	float* x;
 	float* y;
 	if(type == "real")
@@ -114,13 +116,13 @@ void Plot::graph(std::string type)
 		xy_pts.push_back(std::make_pair(plotx, ploty));
 	}
  	
-	std::cout<<xmin<<std::endl;
+//	std::cout<<xmin<<std::endl;
 	gp<<"set xrange ["<<xmin - xmax*.1<<":"<<xmax+xmax*.1<<"]\nset yrange ["<<ymin-ymin*.1<<":"<<ymax+ymax*.1<<"]\n"; 
 	gp<<"plot '-' with lines title 'test'\n";
 	gp.send1d(xy_pts); 
 	pause_if_needed(); 
 
-
+	}
 }
 
 void Plot::setData(float** t_r_idatas)
@@ -134,48 +136,54 @@ void Plot::setData(float** t_r_idatas)
 
 void FFT:: boxFilter(float data[], unsigned long size, float freqStep)
 {
-	for(int i = 0; i<size/4; i++)
+	for(int i = size/4; i<size-size/4; i++)
 		data[i]=0;
-       for(int i = 3*size/4; i<size; i++)	
-		data[i]=0;
-
-
 
 }
 
+	
+
+
 //takes array of magnitudes of frequency
 //Takes array in frequency domain and multiplies it by cos zeroed at size / 4 and 3/4 size
-void FFT:: cosFilter(float data[], unsigned long size, float freqStep)
+void FFT:: revFilter(float data[], unsigned long size, float freqStep)
 {
 	double pi = atan(1) *4.0; 
 	float cos1[size/2];
 	float cos2[size/2];
-	for(int i = 0; i<size/2; i++)
-		cos1[i]=cos(i*freqStep * (pi/size));
-       for (int i = 0; i<size/2; i++)
-		cos2[i]=cos(pi/2 - i*freqStep *(pi/size));
-	for(int i = 0; i<size/2; i++)
+	int scale = size/2; //should be power of 2 //note 
+	for(int i = 0; i<size/scale; i++)
+		cos1[i]=cos(i*freqStep * ((scale/2)*pi/size));
+       for (int i = 0; i<size/scale; i++)
+		cos2[i]=cos(pi/2 - i*freqStep *((scale/2)*pi/size));
+	for(int i = 0; i<size/scale; i++)
 	{
 		data[i]*=cos1[i]; 
-		data[i+size/2]*=cos2[i]; 
-	}	
-//	for(int i = size/4; i<(3*size)/4; i++)
-//		data[i]=0; 
+		data[i+(size-(size/scale))]*=cos2[i]; 
+	}
+	for(int i = size/scale; i<(size-(size/scale)); i++)
+		data[i]=0; 
 
 
 }
 
-void FFT::revFilter(float data[], unsigned long size, float freqStep)
+void FFT::cosFilter(float data[], unsigned long size, float freqStep)
 {
 //	for(int i = 0; i<size; i++)
 //		data[i]=0; 
 	float pi = atan(1)*4.0; 
-	float cos1[size]; 
-	for(int i = 0; i<size; i++)
+	int scale = 1; 
+	float sin1[size/scale]; 
+	for(int i = 0; i<size/scale; i++)
 	{
-		cos1[i]= cos(i*freqStep*(pi/(size*.8*freqStep)) - pi/2); 
-		data[i]*=cos1[i];
+		sin1[i]= sin(i*scale*2*pi/size); 
 	}
+	for(int i = size/(2*scale); i<size - size/(2*scale); i++)
+		data[i]*=sin1[i]; 
+//	for(int i = 0; i<size/(2*scale); i++)
+//		data[i]=0; 
+//	for (int i = size-size/(2*scale); i<size; i++)
+//		data[i]=0;
 	
 }
 
