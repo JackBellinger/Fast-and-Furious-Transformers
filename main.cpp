@@ -42,7 +42,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	bool isSin = argv[1][0] == 's';
+	bool isSin = (argv[1][0] == 's' && argv[1][1] == 'i' && argv[1][3] == 'n');
 	std::string graphType =  argv[2];
 
 	filter_t filter = NONE;
@@ -98,7 +98,6 @@ int main(int argc, char** argv)
 	float* filtData = new float[2*BUFFER_LEN];
 	sf_read_double(infile, data1, BUFFER_LEN); 
 	int ind=0; 
-	float data3[BUFFER_LEN*2]; 
 	while((readcount = sf_read_double (infile, data2, BUFFER_LEN)))
 	{
 		int dataIndex = 0; 
@@ -126,10 +125,12 @@ int main(int argc, char** argv)
 			dataIndex++; 
 		}
 
-
 		proccessData(data, filtData, 2*BUFFER_LEN, sfinfo.channels, fft, REV, snippitPlot, isSin);
+
 		//frequencyData.push_back(data);
-			
+		
+		
+		
 		snippitPlot.gp.clear();
 		snippitPlot.graph(graphType);
 		//write out the un windowed part of the file	
