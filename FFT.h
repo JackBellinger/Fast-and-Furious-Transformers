@@ -42,7 +42,7 @@ class FFT
 	void calcOmega(float time[], unsigned long size, float omega[]); 
 	void swap(float& , float&); 
 	void four1(float*, unsigned long, int, Plot&);
-	void cosFilter(float[], unsigned long size, float freqStep);
+	void cosFilter(float[], unsigned long size);
 	void revFilter(float[], unsigned long size, float freqStep);
 	void boxFilter(float[], unsigned long size, float freqStep);
 };

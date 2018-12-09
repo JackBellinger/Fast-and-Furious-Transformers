@@ -48,11 +48,20 @@ int main(int argc, char** argv)
 	filter_t filter = NONE;
 	std::string filterType = argv[3];
 	if(filterType == "REV")
+	{
+		std::cout<<"test1"<<std::endl;
 		filter =  REV;
+	}
 	else if(filterType == "BOX")
+	{
+		std::cout<<"test2"<<std::endl;
 		filter = BOX;
+	}
 	else if(filterType == "COS")
+	{
+		std::cout<<"test3"<<std::endl;
 		filter = COS;
+	}
 	else
 		filter = NONE;
 	std::string iFname = argv[1];
@@ -84,11 +93,11 @@ int main(int argc, char** argv)
 
 	//need this loop to maintain formatting at beginning 
 	//of a wav file
-	for(int i = 0; i<3; i++)
-	{
-		if(readcount = sf_read_double(infile,data,BUFFER_LEN))
-			sf_write_double(outfile,data,readcount); 
-	}
+//	for(int i = 0; i<3; i++)
+//	{
+//		if(readcount = sf_read_double(infile,data,BUFFER_LEN))
+//			sf_write_double(outfile,data,readcount); 
+//	}
 	//while
 	FFT fft;
 	Plot snippitPlot(2*BUFFER_LEN);
@@ -230,19 +239,22 @@ void proccessData(double* data, float* filterData, int size, int channels, FFT f
 	{
 		if(filter == REV)
 		{
+			std::cout<<"REV"<<std::endl;
 			fft.revFilter(g_real, size, omega[1]); 
 			//		g.graph(omega, g_real, size);	
 			fft.revFilter(g_imag, size, omega[1]); 
 		}
 		if(filter == BOX)
 		{
+			std::cout<<"BOX"<<std::endl;
 			fft.boxFilter(g_real, size, omega[1]);
 			fft.boxFilter(g_imag, size, omega[1]); 
 		}
 		if(filter == COS)
 		{
-			fft.cosFilter(g_real, size, omega[1]);
-			fft.cosFilter(g_imag, size, omega[1]); 
+			std::cout<<"COS"<<std::endl;
+			fft.cosFilter(g_real, size);
+			fft.cosFilter(g_imag, size); 
 		}
 		//	fft.graph(omega, g_mag, size);
 		j = 0; 

@@ -145,17 +145,20 @@ void FFT:: boxFilter(float data[], unsigned long size, float freqStep)
 
 
 //takes array of magnitudes of frequency
-//Takes array in frequency domain and multiplies it by cos zeroed at size / 4 and 3/4 size
-void FFT:: cosFilter(float data[], unsigned long size, float freqStep)
+//orignal: Takes array in frequency domain and multiplies it by cos zeroed at size / 4 and 3/4 size
+//now: can be scaled by variable scale, changes zeros to size/scale and size - size/scale
+void FFT:: cosFilter(float data[], unsigned long size)
 {
 	double pi = atan(1) *4.0; 
 	float cos1[size/2];
 	float cos2[size/2];
-	int scale = size/2; //should be power of 2 //note 
+	//when index is at size/scale thats where the zero is
+	//scale must be at least 2
+	int scale = 16; //should be power of 2 //note 
 	for(int i = 0; i<size/scale; i++)
-		cos1[i]=cos(i*freqStep * ((scale/2)*pi/size));
+		cos1[i]=cos(i * ((scale/2)*pi/size));
        for (int i = 0; i<size/scale; i++)
-		cos2[i]=cos(pi/2 - i*freqStep *((scale/2)*pi/size));
+		cos2[i]=cos(pi/2 - i *((scale/2)*pi/size));
 	for(int i = 0; i<size/scale; i++)
 	{
 		data[i]*=cos1[i]; 
@@ -171,20 +174,27 @@ void FFT::revFilter(float data[], unsigned long size, float freqStep)
 {
 //	for(int i = 0; i<size; i++)
 //		data[i]=0; 
-	float pi = atan(1)*4.0; 
-	int scale = 1; 
-	float sin1[size/scale]; 
-	for(int i = 0; i<size/scale; i++)
+	float pi = atan(1)*4.0;
+        //scale decides how narrow the sin wave is
+	//then it is shifted to be centered 	
+	//scale should be at least 2
+	//midpoint is size/scale
+	int scale = 16; 
+	float sin1[size]; 
+	for(int i = 0; i<2*size/scale; i++)
 	{
-		sin1[i]= sin(i*scale*2*pi/size); 
+		sin1[i]= sin(i*scale*pi/(2*size));
 	}
-	for(int i = size/(2*scale); i<size - size/(2*scale); i++)
-		data[i]*=sin1[i]; 
-//	for(int i = 0; i<size/(2*scale); i++)
-//		data[i]=0; 
-//	for (int i = size-size/(2*scale); i<size; i++)
-//		data[i]=0;
-	
+	int j = 0; 
+	for(int i = size/2 - size/scale; i<size/2 + size/scale; i++)
+	{
+		data[i]*=sin1[j];
+	       j++;	
+	}
+	for(int i = 0; i<size/2 - size/scale; i++)
+		data[i]=0; 
+	for (int i = size/2 + size/scale; i<size; i++)
+		data[i]=0;
 }
 
 void FFT::calcOmega(float time[], unsigned long size, float omega[])
