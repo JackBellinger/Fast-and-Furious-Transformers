@@ -97,6 +97,8 @@ int main(int argc, char** argv)
 	std::vector<float*> imagData;
 	float* filtData = new float[2*BUFFER_LEN];
 	sf_read_double(infile, data1, BUFFER_LEN); 
+	int ind=0; 
+	float data3[BUFFER_LEN*2]; 
 	while((readcount = sf_read_double (infile, data2, BUFFER_LEN)))
 	{
 		int dataIndex = 0; 
@@ -123,6 +125,8 @@ int main(int argc, char** argv)
 			data[dataIndex]=data2[i] *2*(BUFFER_LEN - i)/BUFFER_LEN; 
 			dataIndex++; 
 		}
+
+
 		proccessData(data, filtData, 2*BUFFER_LEN, sfinfo.channels, fft, REV, snippitPlot, isSin);
 		//frequencyData.push_back(data);
 			
