@@ -154,7 +154,7 @@ void FFT:: cosFilter(float data[], unsigned long size)
 	float cos2[size/2];
 	//when index is at size/scale thats where the zero is
 	//scale must be at least 2
-	int scale = 16; //should be power of 2 //note 
+	int scale = 4; //should be power of 2 //note 
 	for(int i = 0; i<size/scale; i++)
 		cos1[i]=cos(i * ((scale/2)*pi/size));
        for (int i = 0; i<size/scale; i++)

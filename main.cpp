@@ -49,17 +49,14 @@ int main(int argc, char** argv)
 	std::string filterType = argv[3];
 	if(filterType == "REV")
 	{
-		std::cout<<"test1"<<std::endl;
 		filter =  REV;
 	}
 	else if(filterType == "BOX")
 	{
-		std::cout<<"test2"<<std::endl;
 		filter = BOX;
 	}
 	else if(filterType == "COS")
 	{
-		std::cout<<"test3"<<std::endl;
 		filter = COS;
 	}
 	else
@@ -134,7 +131,7 @@ int main(int argc, char** argv)
 			dataIndex++; 
 		}
 
-		proccessData(data, filtData, 2*BUFFER_LEN, sfinfo.channels, fft, REV, snippitPlot, isSin);
+		proccessData(data, filtData, 2*BUFFER_LEN, sfinfo.channels, fft, filter, snippitPlot, isSin);
 
 		//frequencyData.push_back(data);
 		
@@ -239,20 +236,17 @@ void proccessData(double* data, float* filterData, int size, int channels, FFT f
 	{
 		if(filter == REV)
 		{
-			std::cout<<"REV"<<std::endl;
 			fft.revFilter(g_real, size, omega[1]); 
 			//		g.graph(omega, g_real, size);	
 			fft.revFilter(g_imag, size, omega[1]); 
 		}
 		if(filter == BOX)
 		{
-			std::cout<<"BOX"<<std::endl;
 			fft.boxFilter(g_real, size, omega[1]);
 			fft.boxFilter(g_imag, size, omega[1]); 
 		}
 		if(filter == COS)
 		{
-			std::cout<<"COS"<<std::endl;
 			fft.cosFilter(g_real, size);
 			fft.cosFilter(g_imag, size); 
 		}
@@ -276,6 +270,7 @@ void proccessData(double* data, float* filterData, int size, int channels, FFT f
 
 	fft.four1(a, size, -1, plot);
 	j = 0; 
+	//select just the real component
 	for(int i = 0; i<size*2; i+=2)
 	{
 		data[j]=a[i]/size; 
