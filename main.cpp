@@ -44,23 +44,24 @@ int main(int argc, char** argv)
 
 	bool isSin = (argv[1][0] == 's' && argv[1][1] == 'i' && argv[1][3] == 'n');
 	std::string graphType =  argv[2];
-
+	
 	filter_t filter = NONE;
 	std::string filterType = argv[3];
+	for(auto &c :filterType) {c = toupper(c);}//convert to uppercase
+	bool validType = false;
 	if(filterType == "REV")
-	{
 		filter =  REV;
-	}
 	else if(filterType == "BOX")
-	{
 		filter = BOX;
-	}
 	else if(filterType == "COS")
-	{
 		filter = COS;
-	}
-	else
+	else if (filterType == "NONE")
 		filter = NONE;
+	else
+	{
+		std::cout<<"Not a valid filter type, filters are: REV, BOX, COSC, NONE"<<std::endl; 
+		return 0; 
+	}
 	std::string iFname = argv[1];
 	std::string oFname = iFname + "output" + filterType + ".wav";
 	std::string filteredOutFname = iFname + "output" + filterType + ".wav";

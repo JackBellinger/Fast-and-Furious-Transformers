@@ -179,7 +179,7 @@ void FFT::revFilter(float data[], unsigned long size, float freqStep)
 	//then it is shifted to be centered 	
 	//scale should be at least 2
 	//midpoint is size/scale
-	int scale = 16; 
+	int scale = 4; 
 	float sin1[size]; 
 	for(int i = 0; i<2*size/scale; i++)
 	{
