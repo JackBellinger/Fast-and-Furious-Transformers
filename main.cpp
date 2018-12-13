@@ -7,9 +7,9 @@
 #include<cmath>
 #include<vector>
 
-#include "gnuplot-iostream/gnuplot-iostream.h"
+#include "gnuplot-iostream/gnuplot-iostream.h"//graphing
 
-#include<sndfile.h>
+#include<sndfile.h> //reading in and out ./wav
 #define BUFFER_LEN 512
 #define MAX_CHANNELS 6
 
@@ -20,12 +20,13 @@ int main(int argc, char** argv)
 {
 
 	//two data arrays used for windowing
-	static double data [2*BUFFER_LEN]; 
-	static double data1 [BUFFER_LEN]; 
-	static double data2 [BUFFER_LEN]; 
-	SNDFILE *infile, *outfile, *filteroutfile; 
-	SF_INFO sfinfo; 
-	int readcount; 
+	static double data [2*BUFFER_LEN]; //holds windowed function
+	static double data1 [BUFFER_LEN]; //holds first 512
+	static double data2 [BUFFER_LEN]; //holds second 512
+	SNDFILE *infile, *outfile, *filteroutfile; //for file I/O
+	SF_INFO sfinfo; //header on ./wav file
+	int readcount; //size of whats read in
+	//input testing
 	if(argc<=1)
 	{
 		std::cout << "error no input file" << std::endl;
@@ -42,12 +43,16 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	//used to just graph the sin function
+	// not a great implimentation still needs a non-empty file
 	bool isSin = (argv[1][0] == 's' && argv[1][1] == 'i' && argv[1][3] == 'n');
-	std::string graphType =  argv[2];
+	std::string graphType =  argv[2];//real, imag, mag (magnitued)
 	
-	filter_t filter = NONE;
-	std::string filterType = argv[3];
+	filter_t filter = NONE;//defalt filter is none
+	std::string filterType = argv[3];//read in filter from command line
 	for(auto &c :filterType) {c = toupper(c);}//convert to uppercase
+
+	//input check and assign enum 
 	bool validType = false;
 	if(filterType == "REV")
 		filter =  REV;
@@ -62,15 +67,19 @@ int main(int argc, char** argv)
 		std::cout<<"Not a valid filter type, filters are: REV, BOX, COSC, NONE"<<std::endl; 
 		return 0; 
 	}
-	std::string iFname = argv[1];
-	std::string oFname = iFname + "output" + filterType + ".wav";
+
+	std::string iFname = argv[1];//store original file name
+	std::string oFname = iFname + "output" + filterType + ".wav";//create output file name
 	std::string filteredOutFname = iFname + "output" + filterType + ".wav";
+	//assign pointers to the names
 	const char *infilename = iFname.c_str(); 
 	const char *outfilename = oFname.c_str(); 
 	const char *filteroutfilename = filteredOutFname.c_str();
 
 	memset(&sfinfo, 0, sizeof(sfinfo)); 
 
+
+	//make sure files open
 	if(!(infile = sf_open(infilename, SFM_READ, &sfinfo)))
 	{
 		printf("Not able to open input file %s. \n", infilename); 
@@ -89,23 +98,17 @@ int main(int argc, char** argv)
 		return 1; 
 	};
 
-	//need this loop to maintain formatting at beginning 
-	//of a wav file
-//	for(int i = 0; i<3; i++)
-//	{
-//		if(readcount = sf_read_double(infile,data,BUFFER_LEN))
-//			sf_write_double(outfile,data,readcount); 
-//	}
-	//while
-	FFT fft;
+	FFT fft;//create an instance of class FFT used like a namespace
+	//declaring graphing stuff
 	Plot snippitPlot(2*BUFFER_LEN);
 	std::vector<double*> frequencyData;
 	std::vector<float*> outputData;
 	std::vector<float*> imagData;
 	float* filtData = new float[2*BUFFER_LEN];
-	sf_read_double(infile, data1, BUFFER_LEN); 
-	int ind=0; 
-	while((readcount = sf_read_double (infile, data2, BUFFER_LEN)))
+
+	sf_read_double(infile, data1, BUFFER_LEN); //prime the windowing
+	int ind=0; //used for reading into data
+	while((readcount = sf_read_double (infile, data2, BUFFER_LEN)))//read in second half of windowing
 	{
 		int dataIndex = 0; 
 		//WINDOWING and copy over
@@ -132,11 +135,10 @@ int main(int argc, char** argv)
 			dataIndex++; 
 		}
 
+		//do the FFT, filtering, graphing, inverse FFT
 		proccessData(data, filtData, 2*BUFFER_LEN, sfinfo.channels, fft, filter, snippitPlot, isSin);
 
 		//frequencyData.push_back(data);
-		
-		
 		
 		snippitPlot.gp.clear();
 		snippitPlot.graph(graphType);
@@ -145,7 +147,7 @@ int main(int argc, char** argv)
 		//sf_write_float(outfile, snippitPlot.realData, readcount);
 		//sf_write_float(filteroutfile, snippitPlot.filterData, readcount);
 		//
-		//copy data 2 into data 1
+		//copy data 2 into data 1 
 		for(int i = 0; i<BUFFER_LEN; i++)
 			data1[i]=data2[i]; 
 
