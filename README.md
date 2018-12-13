@@ -18,3 +18,4 @@ Future goals: make the FFT class a namespace instead
 
 Boost must be installed. 
 libsndfile must be installed (www.mega-nerd.com/libsndfile/)
+Currently it expects gnuplot to be in the same folder as the program, this is an issue that we will address in the future.
